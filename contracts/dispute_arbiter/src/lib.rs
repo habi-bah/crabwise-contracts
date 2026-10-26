@@ -1,6 +1,6 @@
 //! Dispute Arbiter Smart Contract
 //!
-//! Autonomous arbitration and dispute settlement for StellarAid escrows.
+//! Autonomous arbitration and dispute settlement for crabwise escrows.
 //! Architecture Decision: [ADR-0004](../../docs/ADRs/0004-dispute-resolution-and-arbitration.md)
 
 #![no_std]

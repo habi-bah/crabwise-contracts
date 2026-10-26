@@ -2,7 +2,7 @@
 
 * **Status:** Accepted
 * **Date:** 2026-02-01
-* **Authors:** StellarAid Core Team
+* **Authors:** crabwise Core Team
 * **Deciders:** Security Auditors & Smart Contract Developers
 * **Component:** Escrow (`contracts/escrow`)
 

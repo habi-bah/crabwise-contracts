@@ -1,12 +1,12 @@
 /**
- * StellarAid SDK Examples — Campaign & Donation Workflows
+ * crabwise SDK Examples — Campaign & Donation Workflows
  *
  * These examples demonstrate how to use the SDK for common donation
  * and campaign operations. They are validated against the current SDK.
  *
  * Prerequisites:
  *   import { Wallet, Contract } from '@stellar/stellar-sdk';
- *   import { StellarAidSDK } from '../src';
+ *   import { crabwiseSDK } from '../src';
  */
 
 // ── Example 1: Create and fund a campaign ───────────────────────────────────
@@ -27,7 +27,7 @@ async function createCampaign(params: {
   goal: string;
   deadline: number;
 }): Promise<number> {
-  // const sdk = new StellarAidSDK({ rpcUrl: 'https://soroban-testnet.stellar.org' });
+  // const sdk = new crabwiseSDK({ rpcUrl: 'https://soroban-testnet.stellar.org' });
   // const result = await sdk.campaign.create({
   //   owner: params.owner,
   //   goal: params.goal,
@@ -55,7 +55,7 @@ async function donateToCampaign(params: {
   campaignId: number;
   amount: string;
 }): Promise<string> {
-  // const sdk = new StellarAidSDK({ rpcUrl: 'https://soroban-testnet.stellar.org' });
+  // const sdk = new crabwiseSDK({ rpcUrl: 'https://soroban-testnet.stellar.org' });
   // const result = await sdk.donation.submit({
   //   donor: params.donor,
   //   campaignId: params.campaignId,
@@ -83,7 +83,7 @@ async function requestWithdrawal(params: {
   recipient: string;
   amount: string;
 }): Promise<number> {
-  // const sdk = new StellarAidSDK({ rpcUrl: 'https://soroban-testnet.stellar.org' });
+  // const sdk = new crabwiseSDK({ rpcUrl: 'https://soroban-testnet.stellar.org' });
   // const result = await sdk.withdrawal.request({
   //   campaignId: params.campaignId,
   //   recipient: params.recipient,

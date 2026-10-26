@@ -15,7 +15,7 @@
 
 use std::time::Duration;
 
-use sdk::errors::{Result, StellarAidError};
+use sdk::errors::{Result, crabwiseError};
 use sdk::soroban::rpc_client::TransactionStatus;
 
 use stellar_aid_examples::network_from_env;
@@ -23,7 +23,7 @@ use stellar_aid_examples::network_from_env;
 #[tokio::main]
 async fn main() -> Result<()> {
     let tx_hash = std::env::args().nth(1).ok_or_else(|| {
-        StellarAidError::validation("usage: listen_for_events <tx_hash>")
+        crabwiseError::validation("usage: listen_for_events <tx_hash>")
     })?;
     let network = network_from_env();
     let rpc = sdk::soroban::rpc_client::SorobanRpcClient::new(&network.rpc_url);
@@ -38,7 +38,7 @@ async fn main() -> Result<()> {
         let status = rpc
             .get_transaction_status(&tx_hash)
             .await
-            .map_err(|e| StellarAidError::soroban(format!("status poll failed: {e}")))?;
+            .map_err(|e| crabwiseError::soroban(format!("status poll failed: {e}")))?;
         println!("poll {polls}: {status:?} for {tx_hash}");
         match status {
             TransactionStatus::Success | TransactionStatus::Failed => {

@@ -2,7 +2,7 @@
 
 ## Overview
 
-This guide describes the steps required to migrate StellarAid contracts to the latest version.
+This guide describes the steps required to migrate crabwise contracts to the latest version.
 
 ## Prerequisites
 

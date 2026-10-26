@@ -1,4 +1,4 @@
-use crate::errors::StellarAidError;
+use crate::errors::crabwiseError;
 use rand::Rng;
 use tokio::time::{sleep, Duration};
 use tracing::{warn, info};
@@ -98,7 +98,7 @@ where
 ///
 /// `retry_async` retries *every* error, so a malformed request or a rejected
 /// transaction is retried the full `max_attempts` before the caller sees it.
-/// Pass [`StellarAidError::is_retryable`] here — or use
+/// Pass [`crabwiseError::is_retryable`] here — or use
 /// [`retry_stellar_async`] — to retry only transport failures.
 ///
 /// This is complementary to [`crate::batch_checkpoint`]: the classifier bounds
@@ -155,16 +155,16 @@ where
     }
 }
 
-/// [`retry_async_classified`] specialized to the SDK's own [`StellarAidError`].
+/// [`retry_async_classified`] specialized to the SDK's own [`crabwiseError`].
 pub async fn retry_stellar_async<F, Fut, T>(
     config: &RetryConfig,
     f: F,
-) -> Result<T, StellarAidError>
+) -> Result<T, crabwiseError>
 where
     F: Fn() -> Fut,
-    Fut: std::future::Future<Output = Result<T, StellarAidError>>,
+    Fut: std::future::Future<Output = Result<T, crabwiseError>>,
 {
-    retry_async_classified(config, StellarAidError::is_retryable, f).await
+    retry_async_classified(config, crabwiseError::is_retryable, f).await
 }
 
 fn calculate_delay(config: &RetryConfig, attempt: u32) -> u64 {
@@ -336,7 +336,7 @@ mod tests {
         let counter = AtomicU32::new(0);
         let result = retry_stellar_async(&config, || async {
             counter.fetch_add(1, Ordering::SeqCst);
-            Err::<(), StellarAidError>(StellarAidError::validation("amount must be positive"))
+            Err::<(), crabwiseError>(crabwiseError::validation("amount must be positive"))
         })
         .await;
 
@@ -355,7 +355,7 @@ mod tests {
         let counter = AtomicU32::new(0);
         let result = retry_stellar_async(&config, || async {
             counter.fetch_add(1, Ordering::SeqCst);
-            Err::<(), StellarAidError>(StellarAidError::endpoint_unreachable("refused"))
+            Err::<(), crabwiseError>(crabwiseError::endpoint_unreachable("refused"))
         })
         .await;
 

@@ -1,4 +1,4 @@
-use crate::errors::{Result, StellarAidError};
+use crate::errors::{Result, crabwiseError};
 use crate::horizon::client::HorizonClient;
 use crate::soroban::rpc_client::SorobanRpcClient;
 
@@ -56,50 +56,50 @@ pub async fn build_donate_transaction_full(
     let account = horizon
         .get_account(&params.donor)
         .await
-        .map_err(|e| StellarAidError::horizon(format!("failed to fetch account: {}", e)))?;
+        .map_err(|e| crabwiseError::horizon(format!("failed to fetch account: {}", e)))?;
     let seq: u64 = account
         .sequence
         .parse()
-        .map_err(|_| StellarAidError::horizon("invalid sequence number"))?;
+        .map_err(|_| crabwiseError::horizon("invalid sequence number"))?;
 
     let donor_pk = stellar_strkey::Strkey::from_string(&params.donor)
-        .map_err(|_| StellarAidError::validation("invalid donor address"))?;
+        .map_err(|_| crabwiseError::validation("invalid donor address"))?;
 
     let source_account = match &donor_pk {
         stellar_strkey::Strkey::PublicKeyEd25519(pk) => {
             MuxedAccount::Ed25519(Uint256(pk.0))
         }
-        _ => return Err(StellarAidError::validation("donor must be a G... address")),
+        _ => return Err(crabwiseError::validation("donor must be a G... address")),
     };
 
     let donor_addr = match &donor_pk {
         stellar_strkey::Strkey::PublicKeyEd25519(pk) => {
             ScAddress::Account(AccountId(PublicKey::PublicKeyTypeEd25519(Uint256(pk.0))))
         }
-        _ => return Err(StellarAidError::validation("donor must be a G... address")),
+        _ => return Err(crabwiseError::validation("donor must be a G... address")),
     };
 
     let contract_raw = stellar_strkey::Strkey::from_string(&params.donation_contract_id)
-        .map_err(|_| StellarAidError::validation("invalid contract id"))?;
+        .map_err(|_| crabwiseError::validation("invalid contract id"))?;
 
     let contract_addr = match &contract_raw {
         stellar_strkey::Strkey::Contract(h) => ScAddress::Contract(Hash(h.0)),
-        _ => return Err(StellarAidError::validation("expected a C... contract id")),
+        _ => return Err(crabwiseError::validation("expected a C... contract id")),
     };
 
     let sym_donate: ScSymbol = "donate"
         .try_into()
-        .map_err(|_| StellarAidError::validation("invalid function name"))?;
+        .map_err(|_| crabwiseError::validation("invalid function name"))?;
 
     let token_val = match &params.token_address {
         Some(addr) => {
             let raw = stellar_strkey::Strkey::from_string(addr)
-                .map_err(|_| StellarAidError::validation("invalid token address"))?;
+                .map_err(|_| crabwiseError::validation("invalid token address"))?;
             match &raw {
                 stellar_strkey::Strkey::Contract(h) => {
                     ScVal::Address(ScAddress::Contract(Hash(h.0)))
                 }
-                _ => return Err(StellarAidError::validation("expected a C... contract id for token")),
+                _ => return Err(crabwiseError::validation("expected a C... contract id for token")),
             }
         }
         None => ScVal::Address(ScAddress::Contract(Hash([0u8; 32]))),
@@ -110,7 +110,7 @@ pub async fn build_donate_transaction_full(
             let chars: Vec<ScVal> = m.bytes().map(|b| ScVal::U32(b as u32)).collect();
             let char_vec_m = chars
                 .try_into()
-                .map_err(|_| StellarAidError::validation("memo too long"))?;
+                .map_err(|_| crabwiseError::validation("memo too long"))?;
             ScVal::Vec(Some(ScVec(char_vec_m)))
         }
         None => ScVal::Void,
@@ -129,7 +129,7 @@ pub async fn build_donate_transaction_full(
     ];
     let params_m: VecM<ScVal> = params_vec
         .try_into()
-        .map_err(|_| StellarAidError::validation("params too long"))?;
+        .map_err(|_| crabwiseError::validation("params too long"))?;
 
     let host_fn = HostFunction::InvokeContract(InvokeContractArgs {
         contract_address: contract_addr,
@@ -147,12 +147,12 @@ pub async fn build_donate_transaction_full(
 
     let ops: VecM<Operation, 100> = vec![op]
         .try_into()
-        .map_err(|_| StellarAidError::validation("operations too long"))?;
+        .map_err(|_| crabwiseError::validation("operations too long"))?;
 
     let memo_xdr = match &params.memo {
         Some(m) => {
             let s = StringM::try_from(m.as_str())
-                .map_err(|_| StellarAidError::validation("invalid memo"))?;
+                .map_err(|_| crabwiseError::validation("invalid memo"))?;
             Memo::Text(s)
         }
         None => Memo::None,
@@ -177,12 +177,12 @@ pub async fn build_donate_transaction_full(
     });
     let xdr = envelope
         .to_xdr_base64(Limits::none())
-        .map_err(|e| StellarAidError::validation(format!("XDR encoding failed: {}", e)))?;
+        .map_err(|e| crabwiseError::validation(format!("XDR encoding failed: {}", e)))?;
 
     let simulation = rpc
         .simulate_transaction(&xdr)
         .await
-        .map_err(|e| StellarAidError::soroban(format!("simulation failed: {}", e)))?;
+        .map_err(|e| crabwiseError::soroban(format!("simulation failed: {}", e)))?;
 
     let sim_fee = simulation
         .cost
@@ -201,5 +201,5 @@ pub async fn build_donate_transaction_full(
     });
     envelope_final
         .to_xdr_base64(Limits::none())
-        .map_err(|e| StellarAidError::validation(format!("XDR encoding failed: {}", e)))
+        .map_err(|e| crabwiseError::validation(format!("XDR encoding failed: {}", e)))
 }

@@ -2,7 +2,7 @@
 
 * **Status:** Accepted
 * **Date:** 2026-01-20
-* **Authors:** StellarAid Architecture Team
+* **Authors:** crabwise Architecture Team
 * **Deciders:** Lead Architects & Foundation Stewards
 * **Component:** Core / Platform
 
@@ -10,7 +10,7 @@
 
 ## Context and Problem Statement
 
-StellarAid requires a high-performance, cost-effective, and secure smart contract platform for global humanitarian aid, escrow transactions, and commission settlements. The platform must handle high transaction volume with deterministic low fees and instant finality, while providing robust cryptographic security and asset interoperability.
+crabwise requires a high-performance, cost-effective, and secure smart contract platform for global humanitarian aid, escrow transactions, and commission settlements. The platform must handle high transaction volume with deterministic low fees and instant finality, while providing robust cryptographic security and asset interoperability.
 
 ## Decision Drivers
 

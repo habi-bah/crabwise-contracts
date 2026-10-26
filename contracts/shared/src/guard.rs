@@ -1,4 +1,4 @@
-//! Re-entrancy guard, shared by every StellarAid contract (issue #762).
+//! Re-entrancy guard, shared by every crabwise contract (issue #762).
 //!
 //! # Model
 //!

@@ -5,11 +5,11 @@
 //!   cargo run --bin token_transfer -- \
 //!     G<SOURCE> C<TOKEN_CONTRACT_ID> G<FROM> 1000000000
 //!
-//! Demonstrates how StellarAid encodes i128 amounts and `Address` arguments
+//! Demonstrates how crabwise encodes i128 amounts and `Address` arguments
 //! for standard Soroban tokens (Stellar Asset Contract), which is the shape
 //! every donation/escrow payout reuses.
 
-use sdk::errors::{Result, StellarAidError};
+use sdk::errors::{Result, crabwiseError};
 
 use stellar_aid_examples::{
     invoke_host_function, network_from_env, sc_val_address, sc_val_i128, simulate_invocation,
@@ -18,13 +18,13 @@ use stellar_aid_examples::{
 #[tokio::main]
 async fn main() -> Result<()> {
     let mut args = std::env::args().skip(1);
-    let source = args.next().ok_or_else(|| StellarAidError::validation("usage: token_transfer SOURCE TOKEN_CONTRACT_ID FROM AMOUNT"))?;
-    let token = args.next().ok_or_else(|| StellarAidError::validation("usage: token_transfer SOURCE TOKEN_CONTRACT_ID FROM AMOUNT"))?;
-    let from = args.next().ok_or_else(|| StellarAidError::validation("usage: token_transfer SOURCE TOKEN_CONTRACT_ID FROM AMOUNT"))?;
+    let source = args.next().ok_or_else(|| crabwiseError::validation("usage: token_transfer SOURCE TOKEN_CONTRACT_ID FROM AMOUNT"))?;
+    let token = args.next().ok_or_else(|| crabwiseError::validation("usage: token_transfer SOURCE TOKEN_CONTRACT_ID FROM AMOUNT"))?;
+    let from = args.next().ok_or_else(|| crabwiseError::validation("usage: token_transfer SOURCE TOKEN_CONTRACT_ID FROM AMOUNT"))?;
     let amount: i128 = args
         .next()
         .and_then(|a| a.parse().ok())
-        .ok_or_else(|| StellarAidError::validation("amount must be an i128"))?;
+        .ok_or_else(|| crabwiseError::validation("amount must be an i128"))?;
 
     let to = std::env::var("TO_ADDRESS")
         .unwrap_or_else(|_| from.clone())

@@ -49,7 +49,7 @@ deploy-testnet:
 
 # ── Containerised build / test (closes #708) ──────────────────────────────
 docker-build:
-	docker build -t stellaraid-contracts .
+	docker build -t crabwise-contracts .
 
 docker-test:
 	docker build --target test -t stelleraid-contracts:test .

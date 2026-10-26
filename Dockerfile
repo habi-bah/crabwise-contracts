@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 #
-# stellarAid contracts — reproducible build / test / deploy-assist image.
+# crabwise contracts — reproducible build / test / deploy-assist image.
 #
 # Closes #708 (deployment pipeline and testnet validation).
 # Multi-stage build optimised in #887.
@@ -11,20 +11,20 @@
 #   deliberately holds no credentials.
 #
 # HOW TO BUILD
-#   docker build -t stellaraid-contracts .                  # deploy-assist (default)
-#   docker build --target test     -t stellaraid:test .     # build + test
-#   docker build --target artifacts -t stellaraid:wasm .     # WASM only, ~1/10 the size
+#   docker build -t crabwise-contracts .                  # deploy-assist (default)
+#   docker build --target test     -t crabwise:test .     # build + test
+#   docker build --target artifacts -t crabwise:wasm .     # WASM only, ~1/10 the size
 #
 # HOW TO RUN
-#   docker run --rm -v "$PWD:/usr/src/app" stellaraid-contracts \
+#   docker run --rm -v "$PWD:/usr/src/app" crabwise-contracts \
 #       bash scripts/preflight.sh testnet
-#   docker run --rm -v "$PWD:/usr/src/app" stellaraid-contracts \
+#   docker run --rm -v "$PWD:/usr/src/app" crabwise-contracts \
 #       bash scripts/deploy/verify_deploy.sh testnet
 #
 #   Deployment itself needs a Stellar account. Supply it at RUN time, never at
 #   BUILD time, and never bake it into a layer:
 #     docker run --rm -e STELLAR_DEPLOYER_SECRET -v "$PWD:/usr/src/app" \
-#       stellaraid-contracts bash scripts/deploy/deploy_testnet.sh
+#       crabwise-contracts bash scripts/deploy/deploy_testnet.sh
 #   (`-e NAME` forwards the value from the caller's environment without putting
 #   it in the image, the container spec, or the shell history.)
 #
@@ -61,7 +61,7 @@
 #      WASM size win, and #887 asks for build time to come down. Turn them on
 #      for a release build with:
 #         docker build --build-arg CARGO_LTO=true \
-#                      --build-arg CARGO_CODEGEN_UNITS=1 -t stellaraid:wasm .
+#                      --build-arg CARGO_CODEGEN_UNITS=1 -t crabwise:wasm .
 #   4. An `artifacts` stage for the WASM-only image, which is the stage that
 #      actually minimises final size. `deploy-assist` stays the default so
 #      every command documented above keeps working unchanged — a smaller
@@ -206,9 +206,9 @@ RUN --mount=type=cache,id=cargo-registry,target=/usr/local/cargo/registry,sharin
 # which can be useful once the WASM exists.
 #
 # Intended for inspecting, hashing and publishing a release build:
-#   docker build --target artifacts -t stellaraid:wasm .
-#   docker run --rm stellaraid:wasm ls -la /wasm
-#   docker run --rm stellaraid:wasm cat /wasm/MANIFEST.sha256
+#   docker build --target artifacts -t crabwise:wasm .
+#   docker run --rm crabwise:wasm ls -la /wasm
+#   docker run --rm crabwise:wasm cat /wasm/MANIFEST.sha256
 #
 # NOT intended for running the deploy scripts: preflight.sh and deploy.sh
 # shell out to cargo and the soroban CLI, which are not present here. Use
@@ -230,7 +230,7 @@ COPY --from=build --chown=starlaraid:starlaraid /usr/src/app/build-artifacts/was
 # drift from what was actually produced.
 RUN set -eux; \
     { \
-      echo "repository: Dfunder/stellarAid-contract"; \
+      echo "repository: Dfunder/crabwise-contract"; \
       echo "built:       $(date -u +%Y-%m-%dT%H:%M:%SZ)"; \
       echo "artifacts:   $(ls -1 /wasm/*.wasm | wc -l)"; \
       echo; \

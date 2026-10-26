@@ -1,8 +1,8 @@
-# StellarAid Admin Multi-Sig Readiness & Verification Guide
+# crabwise Admin Multi-Sig Readiness & Verification Guide
 
 ## 1. Executive Summary
 
-In StellarAid contracts (including the Campaign contract), administrative access is governed by an opaque `admin: Address` and enforced via `admin.require_auth()`.
+In crabwise contracts (including the Campaign contract), administrative access is governed by an opaque `admin: Address` and enforced via `admin.require_auth()`.
 
 Because Soroban delegates signature and threshold verification directly to the underlying Stellar host environment and Stellar Core, **the contract is natively multi-sig ready with zero smart contract modifications or redesign required**.
 
@@ -219,7 +219,7 @@ If the organization prefers an on-chain proposal and voting flow rather than off
 
 ## 6. Automated Test Coverage
 
-The test suite in [contracts/campaign/src/lib.rs](file:///c:/Users/hp/OneDrive/Desktop/GrantFox/stellarAid-contract/contracts/campaign/src/lib.rs) includes automated tests verifying multi-sig readiness:
+The test suite in [contracts/campaign/src/lib.rs](file:///c:/Users/hp/OneDrive/Desktop/GrantFox/crabwise-contract/contracts/campaign/src/lib.rs) includes automated tests verifying multi-sig readiness:
 
 1. `test_admin_multisig_readiness_with_contract_wallet`:
    Verifies that a multi-sig smart contract address can be initialized as admin and successfully execute `freeze` and `unfreeze` invocations.

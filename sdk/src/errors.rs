@@ -1,8 +1,8 @@
 use thiserror::Error;
 
-/// Top-level error type for the StellarAid blockchain integration layer.
+/// Top-level error type for the crabwise blockchain integration layer.
 #[derive(Debug, Error)]
-pub enum StellarAidError {
+pub enum crabwiseError {
     #[error("Horizon API error: {0}")]
     HorizonError(String),
 
@@ -52,7 +52,7 @@ pub enum StellarAidError {
     TransactionRejected(String),
 }
 
-impl StellarAidError {
+impl crabwiseError {
     pub fn horizon(msg: impl Into<String>) -> Self {
         Self::HorizonError(msg.into())
     }
@@ -136,13 +136,13 @@ impl StellarAidError {
     /// the answer to issue #805: `retry_async` used to retry *every* error,
     /// including an unrecoverable validation or rejection failure.
     ///
-    /// Retryable: [`StellarAidError::NetworkError`],
-    /// [`StellarAidError::EndpointUnreachable`],
-    /// [`StellarAidError::RequestTimeout`].
+    /// Retryable: [`crabwiseError::NetworkError`],
+    /// [`crabwiseError::EndpointUnreachable`],
+    /// [`crabwiseError::RequestTimeout`].
     ///
     /// Not retryable: validation, bad-request, rejected-transaction, contract,
     /// keypair, wallet, compression and batch errors — the server-side
-    /// [`StellarAidError::HorizonError`]/[`StellarAidError::SorobanError`]
+    /// [`crabwiseError::HorizonError`]/[`crabwiseError::SorobanError`]
     /// variants carry a rejection and are likewise not retried.
     pub fn is_retryable(&self) -> bool {
         matches!(
@@ -152,7 +152,7 @@ impl StellarAidError {
     }
 }
 
-pub type Result<T> = std::result::Result<T, StellarAidError>;
+pub type Result<T> = std::result::Result<T, crabwiseError>;
 
 #[cfg(test)]
 mod tests {
@@ -160,24 +160,24 @@ mod tests {
 
     #[test]
     fn only_transport_errors_are_retryable() {
-        assert!(StellarAidError::endpoint_unreachable("dns").is_retryable());
-        assert!(StellarAidError::request_timeout("slow").is_retryable());
-        assert!(!StellarAidError::bad_request("HTTP 400").is_retryable());
-        assert!(!StellarAidError::transaction_rejected("tx failed").is_retryable());
-        assert!(!StellarAidError::validation("amount must be positive").is_retryable());
+        assert!(crabwiseError::endpoint_unreachable("dns").is_retryable());
+        assert!(crabwiseError::request_timeout("slow").is_retryable());
+        assert!(!crabwiseError::bad_request("HTTP 400").is_retryable());
+        assert!(!crabwiseError::transaction_rejected("tx failed").is_retryable());
+        assert!(!crabwiseError::validation("amount must be positive").is_retryable());
     }
 
     #[test]
     fn http_status_is_classified() {
         assert!(matches!(
-            StellarAidError::from_http_status(400, "bad"),
-            StellarAidError::BadRequest(_)
+            crabwiseError::from_http_status(400, "bad"),
+            crabwiseError::BadRequest(_)
         ));
         assert!(matches!(
-            StellarAidError::from_http_status(404, "missing"),
-            StellarAidError::BadRequest(_)
+            crabwiseError::from_http_status(404, "missing"),
+            crabwiseError::BadRequest(_)
         ));
         // 5xx is transient, not a malformed request.
-        assert!(StellarAidError::from_http_status(503, "unavailable").is_retryable());
+        assert!(crabwiseError::from_http_status(503, "unavailable").is_retryable());
     }
 }

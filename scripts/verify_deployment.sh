@@ -85,7 +85,7 @@ run_suite() {
 # ── Banner ───────────────────────────────────────────────────────────────────
 
 echo "╔══════════════════════════════════════════════════════════════╗"
-echo "║  Deployment Validation — StellarAid ($NETWORK)              ║"
+echo "║  Deployment Validation — crabwise ($NETWORK)              ║"
 echo "║  $(date -u '+%Y-%m-%d %H:%M:%S UTC')                            ║"
 echo "╚══════════════════════════════════════════════════════════════╝"
 echo ""

@@ -1,5 +1,5 @@
 use crate::compression::{self, CompressionFormat, CompressionStats};
-use crate::errors::StellarAidError;
+use crate::errors::crabwiseError;
 use crate::health::{EndpointHealth, HEALTH_PROBE_TIMEOUT};
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
@@ -183,7 +183,7 @@ impl SorobanRpcClient {
     /// [`HEALTH_PROBE_TIMEOUT`]. The probe is bounded by that short timeout so it
     /// can never hang; it is for setup and diagnostics, not a precondition on
     /// every operation.
-    pub async fn health(&self) -> Result<EndpointHealth, StellarAidError> {
+    pub async fn health(&self) -> Result<EndpointHealth, crabwiseError> {
         let started = Instant::now();
         let probe = tokio::time::timeout(
             HEALTH_PROBE_TIMEOUT,
@@ -194,13 +194,13 @@ impl SorobanRpcClient {
 
         match probe {
             Ok(Ok(_)) => Ok(EndpointHealth::up(self.rpc_url.clone(), elapsed)),
-            Ok(Err(RpcError::Http(e))) => Err(StellarAidError::from_reqwest(e)),
+            Ok(Err(RpcError::Http(e))) => Err(crabwiseError::from_reqwest(e)),
             Ok(Err(other)) => Ok(EndpointHealth::down(
                 self.rpc_url.clone(),
                 other.to_string(),
                 elapsed,
             )),
-            Err(_) => Err(StellarAidError::request_timeout(format!(
+            Err(_) => Err(crabwiseError::request_timeout(format!(
                 "Soroban RPC health probe to {} exceeded {:?}",
                 self.rpc_url, HEALTH_PROBE_TIMEOUT
             ))),

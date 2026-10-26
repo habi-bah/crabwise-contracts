@@ -1,5 +1,5 @@
 /**
- * StellarAid SDK Example: Campaign & Donation Flow
+ * crabwise SDK Example: Campaign & Donation Flow
  *
  * Demonstrates:
  * 1. Registering a fundraising campaign with target goals and deadlines.

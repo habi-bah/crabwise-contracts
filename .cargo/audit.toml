@@ -1,4 +1,4 @@
-# cargo-audit configuration for the stellarAid workspace (closes #880).
+# cargo-audit configuration for the crabwise workspace (closes #880).
 #
 # `make audit` runs `cargo audit`, which reads this file automatically from its
 # documented location, .cargo/audit.toml. Every section is

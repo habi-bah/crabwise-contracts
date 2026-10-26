@@ -1,7 +1,7 @@
 # Operational Runbook — Worker Service
 
 This document describes how to operate, monitor, and troubleshoot the
-StellarAid worker service.
+crabwise worker service.
 
 ## Service Overview
 

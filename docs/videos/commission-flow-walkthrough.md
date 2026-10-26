@@ -3,7 +3,7 @@
 * **Video Title:** *Multi-Milestone Commission Contracts, Agency Delegations, and Atomic Settlements*
 * **Video Duration:** 21 minutes 30 seconds
 * **Contract Under Review:** [`contracts/commission_agreement/src/lib.rs`](../../contracts/commission_agreement/src/lib.rs)
-* **Recording Link:** [Watch on StellarAid DevPortal](https://dev.stellaraid.org/videos/02-commission-agreement) | [IPFS Mirror](ipfs://QmCommissionWalkthroughVideo2026)
+* **Recording Link:** [Watch on crabwise DevPortal](https://dev.crabwise.org/videos/02-commission-agreement) | [IPFS Mirror](ipfs://QmCommissionWalkthroughVideo2026)
 
 ---
 

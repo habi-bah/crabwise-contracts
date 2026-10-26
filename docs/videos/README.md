@@ -1,6 +1,6 @@
-# StellarAid Smart Contract Video Walkthroughs
+# crabwise Smart Contract Video Walkthroughs
 
-Welcome to the official video walkthrough repository and technical companion guide for the **StellarAid Soroban Smart Contracts**.
+Welcome to the official video walkthrough repository and technical companion guide for the **crabwise Soroban Smart Contracts**.
 
 These walkthroughs provide in-depth code reviews, architecture diagrams, runtime execution traces, gas & CPU performance profiling, and security considerations across the contract suite.
 
@@ -44,5 +44,5 @@ Each walkthrough is designed to provide:
 ## Accessing Video Recordings & Transcripts
 
 * **YouTube Playlist:** `https://youtube.com/playlist?list=stellar-aid-contract-walkthroughs`
-* **IPFS Mirror:** `ipfs://QmStellarAidContractWalkthroughVideos2026`
+* **IPFS Mirror:** `ipfs://QmcrabwiseContractWalkthroughVideos2026`
 * **Local Transcripts & Slides:** Available directly within each markdown guide in this directory.

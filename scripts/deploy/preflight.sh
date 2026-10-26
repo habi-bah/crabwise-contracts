@@ -40,7 +40,7 @@ for arg in ${ORIGINAL_ARGS[@]+"${ORIGINAL_ARGS[@]}"}; do
 done
 
 printf '╔══════════════════════════════════════════════════════════════╗\n'
-printf '║  Pre-deployment checklist — StellarAid (%-8s)          ║\n' "$NETWORK"
+printf '║  Pre-deployment checklist — crabwise (%-8s)          ║\n' "$NETWORK"
 printf '╚══════════════════════════════════════════════════════════════╝\n'
 
 # ── 1. Toolchain ────────────────────────────────────────────────────────────

@@ -1,7 +1,7 @@
 # Migration Helpers
 
 This document describes the recommended patterns for handling storage
-migrations in StellarAid contracts.
+migrations in crabwise contracts.
 
 ## Background
 

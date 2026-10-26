@@ -2,7 +2,7 @@
 
 > **Summary.** This document provides reference specifications—purpose, authorization, public interfaces, emitted events, and error codes—for 24 crates under `contracts/` (23 contracts plus the `shared` library). It does *not* cover all 29 member directories in the workspace (notably omitting `campaign_factory`, `campaign_instance`, and `factory`, as well as the unbuilt `donation` and `withdrawal` crates). In accordance with the honest status model established in `PERFORMANCE_TARGETS.md` §6, these specifications reflect transcribed source code rather than live-verified invocations; several contracts (such as `escrow` and `commission_agreement`) currently have delimiter or compilation errors on `main` and have not been compiled to WASM. This guide is intended for smart contract engineers, protocol auditors, and backend integrators. New readers should start with [Conventions used below](#conventions-used-below) and [Shared machinery](#shared-machinery) before consulting specific contract sections.
 
-Reference documentation for every crate in the stellarAid workspace: what it is
+Reference documentation for every crate in the crabwise workspace: what it is
 for, who may call it, what it emits, and how it fails.
 
 > - **Storage layout and TTL policy:** [STORAGE.md](./STORAGE.md).
@@ -867,13 +867,13 @@ Topics are listed as `[contract address, …]`, since the contract address is al
 
 ### dispute_arbiter
 
-> "Dispute Arbiter Smart Contract — Autonomous arbitration and dispute settlement for StellarAid escrows. Architecture Decision: [ADR-0004 (0004-dispute-resolution-and-arbitration.md)](../../docs/ADRs/0004-dispute-resolution-and-arbitration.md)"
+> "Dispute Arbiter Smart Contract — Autonomous arbitration and dispute settlement for crabwise escrows. Architecture Decision: [ADR-0004 (0004-dispute-resolution-and-arbitration.md)](../../docs/ADRs/0004-dispute-resolution-and-arbitration.md)"
 
 Source: `contracts/dispute_arbiter/`
 
 **Purpose.**
 
-Arbitrates disputes that arise over StellarAid escrow commissions keyed by an opaque `Bytes` `commission_id`. A dispute is opened by a self-authorising `initiator`; from then on settlement is admin-driven — the arbiter invokes the escrow contract's `refund_cl` or `rel_pay` entry points and records a `DisputeRecord` with a status and a free-text note. `partial_resolve` supports a split settlement: it refunds the client via the escrow contract, reads the escrow's live token balance from the token returned by `config_contract.get_usdc`, and then transfers the two computed bps shares directly from the escrow contract address. If nobody acts, `auto_resolve` becomes callable after a configured number of ledgers and defaults to a full client refund. The crate also re-exports the shared health-monitoring (#678) and gradual-rollout (#684) surface on every public entry point.
+Arbitrates disputes that arise over crabwise escrow commissions keyed by an opaque `Bytes` `commission_id`. A dispute is opened by a self-authorising `initiator`; from then on settlement is admin-driven — the arbiter invokes the escrow contract's `refund_cl` or `rel_pay` entry points and records a `DisputeRecord` with a status and a free-text note. `partial_resolve` supports a split settlement: it refunds the client via the escrow contract, reads the escrow's live token balance from the token returned by `config_contract.get_usdc`, and then transfers the two computed bps shares directly from the escrow contract address. If nobody acts, `auto_resolve` becomes callable after a configured number of ledgers and defaults to a full client refund. The crate also re-exports the shared health-monitoring (#678) and gradual-rollout (#684) surface on every public entry point.
 
 **Dependencies.**
 
@@ -1017,7 +1017,7 @@ None. The crate declares no `#[contracterror]` enum and has no `src/errors.rs`; 
 
 ### escrow
 
-> Handles locking, releasing, refunding, and dispute escrow workflows for StellarAid.
+> Handles locking, releasing, refunding, and dispute escrow workflows for crabwise.
 
 Source: `contracts/escrow/`
 

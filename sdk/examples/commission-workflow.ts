@@ -1,5 +1,5 @@
 /**
- * StellarAid SDK Example: Commission Agreement & Milestone Flow
+ * crabwise SDK Example: Commission Agreement & Milestone Flow
  *
  * Demonstrates:
  * 1. Creating a multi-milestone commission agreement.

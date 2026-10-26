@@ -1,6 +1,6 @@
-# StellarAid TypeScript SDK Integration Examples
+# crabwise TypeScript SDK Integration Examples
 
-Comprehensive examples demonstrating end-to-end integration patterns using the **StellarAid SDK** and **@stellar/stellar-sdk** for Soroban smart contracts.
+Comprehensive examples demonstrating end-to-end integration patterns using the **crabwise SDK** and **@stellar/stellar-sdk** for Soroban smart contracts.
 
 ---
 

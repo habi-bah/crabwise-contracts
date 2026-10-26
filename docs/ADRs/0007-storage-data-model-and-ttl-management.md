@@ -2,7 +2,7 @@
 
 * **Status:** Accepted
 * **Date:** 2026-04-05
-* **Authors:** StellarAid Core Engineering
+* **Authors:** crabwise Core Engineering
 * **Deciders:** Architecture Working Group
 * **Component:** Storage / Lifecycle Management
 

@@ -10,7 +10,7 @@
 npm install @stellar/freighter-api
 ```
 
-The `@stellaraid/wallets` SDK package already lists this as a dependency, so if
+The `@crabwise/wallets` SDK package already lists this as a dependency, so if
 you consume the SDK you do **not** need to install it separately.
 
 ---
@@ -24,7 +24,7 @@ import {
   signTransactionWithFreighter,
   FreighterNotInstalledError,
   NETWORK_PASSPHRASE,
-} from "@stellaraid/wallets";
+} from "@crabwise/wallets";
 
 // 1. Gate your UI
 if (!isFreighterInstalled()) {
@@ -99,7 +99,7 @@ for user approval. Returns the signed XDR string.
 | `network` | `string` | Network passphrase (see constants below).      |
 
 ```ts
-import { NETWORK_PASSPHRASE, signTransactionWithFreighter } from "@stellaraid/wallets";
+import { NETWORK_PASSPHRASE, signTransactionWithFreighter } from "@crabwise/wallets";
 import { TransactionBuilder, Networks, Operation, Asset } from "@stellar/stellar-sdk";
 
 const tx = new TransactionBuilder(sourceAccount, {
@@ -165,7 +165,7 @@ catch (err) {
 ### Show a download banner
 
 ```ts
-import { isFreighterInstalled, FREIGHTER_DOWNLOAD_URL } from "@stellaraid/wallets";
+import { isFreighterInstalled, FREIGHTER_DOWNLOAD_URL } from "@crabwise/wallets";
 
 function WalletConnectButton() {
   if (!isFreighterInstalled()) {
@@ -182,7 +182,7 @@ function WalletConnectButton() {
 ### Distinguish rejection from missing extension
 
 ```ts
-import { connectFreighter, FreighterNotInstalledError } from "@stellaraid/wallets";
+import { connectFreighter, FreighterNotInstalledError } from "@crabwise/wallets";
 
 async function handleConnect() {
   try {
@@ -201,14 +201,14 @@ async function handleConnect() {
 
 ---
 
-## End-to-End Example: Donate via StellarAid
+## End-to-End Example: Donate via crabwise
 
 ```ts
 import {
   connectFreighter,
   signTransactionWithFreighter,
   NETWORK_PASSPHRASE,
-} from "@stellaraid/wallets";
+} from "@crabwise/wallets";
 import { Server, TransactionBuilder, Networks, Operation, Asset } from "@stellar/stellar-sdk";
 
 const HORIZON_URL = "https://horizon-testnet.stellar.org";

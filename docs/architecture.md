@@ -1,6 +1,6 @@
-# StellarAid Contract Architecture
+# crabwise Contract Architecture
 
-> **Summary.** This document gives the high-level architecture of the stellarAid
+> **Summary.** This document gives the high-level architecture of the crabwise
 > contract workspace: which crates exist, which of them call which, and how a
 > request flows from a client through the contracts to an emitted event. The
 > workspace has grown well past the three-contract sketch this file originally

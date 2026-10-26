@@ -98,7 +98,7 @@ async function fetchAccountSequence(horizonUrl: string, address: string): Promis
 /**
  * Convert a JS value into a Soroban `ScVal`. Plain numbers/strings/booleans
  * map to their obvious `ScVal`s; `{ type: "i128", value: bigint }` selects a
- * wide integer (StellarAid amounts are i128).
+ * wide integer (crabwise amounts are i128).
  */
 export function toScVal(value: unknown): ReturnType<typeof nativeToScVal> {
   if (value !== null && typeof value === "object" && "type" in value && value.type === "i128") {

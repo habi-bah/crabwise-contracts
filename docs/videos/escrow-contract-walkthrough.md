@@ -3,7 +3,7 @@
 * **Video Title:** *Deep Dive: Escrow Architecture, State Transitions, and Re-entrancy Protection in Soroban*
 * **Video Duration:** 18 minutes 45 seconds
 * **Contract Under Review:** [`contracts/escrow/src/lib.rs`](../../contracts/escrow/src/lib.rs)
-* **Recording Link:** [Watch on StellarAid DevPortal](https://dev.stellaraid.org/videos/01-escrow-contract) | [IPFS Mirror](ipfs://QmEscrowWalkthroughVideo2026)
+* **Recording Link:** [Watch on crabwise DevPortal](https://dev.crabwise.org/videos/01-escrow-contract) | [IPFS Mirror](ipfs://QmEscrowWalkthroughVideo2026)
 
 ---
 

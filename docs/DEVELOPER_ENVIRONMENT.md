@@ -1,6 +1,6 @@
 # Developer Environment Setup Guide
 
-This guide provides step-by-step instructions for setting up a local development environment for the StellarAid platform.
+This guide provides step-by-step instructions for setting up a local development environment for the crabwise platform.
 
 ## Prerequisites
 
@@ -26,8 +26,8 @@ Before you begin, ensure you have the following software installed on your syste
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/akargi/stellarAid-contract.git
-cd stellarAid-contract
+git clone https://github.com/akargi/crabwise-contract.git
+cd crabwise-contract
 ```
 
 ### 2. Install Rust and Targets
@@ -249,12 +249,12 @@ netstat -ano | findstr :8000
 If you encounter issues not listed here:
 1. Check the GitHub Issues page for known problems
 2. Join the Stellar Developer Discord for community support
-3. Contact the StellarAid maintainers at maintainers@stellar-aid.org
+3. Contact the crabwise maintainers at maintainers@stellar-aid.org
 4. Create a new issue with detailed logs and reproduction steps
 
 ## Additional Resources
 
 - [Stellar Developer Documentation](https://developers.stellar.org/)
 - [Soroban smart contracts overview](https://developers.stellar.org/docs/build/smart-contracts/overview)
-- [StellarAid Architecture Guide (architecture.md)](architecture.md)
+- [crabwise Architecture Guide (architecture.md)](architecture.md)
 - [Deployment Configuration Guide (DEPLOYMENT_CONFIGURATION.md)](DEPLOYMENT_CONFIGURATION.md)

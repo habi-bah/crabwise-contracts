@@ -1,6 +1,6 @@
 # Error Codes Documentation
 
-This document lists all error codes used across stellarAid contracts.
+This document lists all error codes used across crabwise contracts.
 
 ## Common Error Codes
 

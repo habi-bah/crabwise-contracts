@@ -2,7 +2,7 @@
 
 * **Status:** Accepted
 * **Date:** 2026-03-01
-* **Authors:** StellarAid Governance & Architecture Team
+* **Authors:** crabwise Governance & Architecture Team
 * **Deciders:** Core Engineering Team
 * **Component:** Dispute Arbiter (`contracts/dispute_arbiter`)
 

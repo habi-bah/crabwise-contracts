@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to Lumora / StellarAid contracts are documented here.
+All notable changes to Lumora / crabwise contracts are documented here.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
@@ -84,5 +84,5 @@ Initial documented baseline for every workspace contract (`shared`, `platform_co
 - `shared::version` constraint helpers and `CURRENT_STORAGE_SCHEMA`.
 - Maintenance window, pause, backup, upgrade, and communication procedures (#681).
 
-[Unreleased]: https://github.com/EDOHWARES/stellarAid-contract/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/EDOHWARES/stellarAid-contract/releases/tag/v0.1.0
+[Unreleased]: https://github.com/EDOHWARES/crabwise-contract/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/EDOHWARES/crabwise-contract/releases/tag/v0.1.0

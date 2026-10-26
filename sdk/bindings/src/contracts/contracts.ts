@@ -1,4 +1,4 @@
-// Typed bindings for the core StellarAid contracts (issue #866).
+// Typed bindings for the core crabwise contracts (issue #866).
 //
 // Each binding is a thin wrapper over `ContractClient` that pins the method
 // names and argument shapes of the on-chain function signatures, so callers

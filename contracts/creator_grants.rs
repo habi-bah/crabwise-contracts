@@ -1,5 +1,5 @@
 // Creator Grants System - Issue #585
-// Manages grant allocations for creators on StellarAid
+// Manages grant allocations for creators on crabwise
 
 use std::collections::HashMap;
 

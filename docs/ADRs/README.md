@@ -1,6 +1,6 @@
 # Architecture Decision Records (ADRs)
 
-This directory contains Architecture Decision Records (ADRs) for the **StellarAid Smart Contracts & SDK Ecosystem**.
+This directory contains Architecture Decision Records (ADRs) for the **crabwise Smart Contracts & SDK Ecosystem**.
 
 An Architecture Decision Record captures an important architectural decision made along with its context, considered options, rationales, and consequences.
 

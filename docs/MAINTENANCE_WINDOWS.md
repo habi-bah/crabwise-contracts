@@ -1,6 +1,6 @@
 # Maintenance Window Procedures
 
-> Closes **#681** — scheduled windows, pause runbook, state backup, upgrade steps, and communication templates for every Lumora / StellarAid contract.
+> Closes **#681** — scheduled windows, pause runbook, state backup, upgrade steps, and communication templates for every Lumora / crabwise contract.
 
 Related: [PAUSE_AND_EMERGENCY.md](./PAUSE_AND_EMERGENCY.md), [UPGRADE_AND_ROLLBACK.md](./UPGRADE_AND_ROLLBACK.md), [VERSIONING.md](./VERSIONING.md), [OPERATIONAL_RUNBOOK.md](./OPERATIONAL_RUNBOOK.md).
 

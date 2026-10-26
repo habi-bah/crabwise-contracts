@@ -58,7 +58,7 @@ while [ $# -gt 0 ]; do
 done
 
 printf '╔══════════════════════════════════════════════════════════════╗\n'
-printf '║  MAINNET DEPLOYMENT — StellarAid                             ║\n'
+printf '║  MAINNET DEPLOYMENT — crabwise                             ║\n'
 printf '╚══════════════════════════════════════════════════════════════╝\n'
 
 # Resolve the network first so the confirmation token is compared against the

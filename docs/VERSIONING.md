@@ -1,6 +1,6 @@
 # Contract Versioning Strategy
 
-> Closes **#682** — semantic versioning, version metadata, on-chain querying, and compatibility constraints for every Lumora / StellarAid contract.
+> Closes **#682** — semantic versioning, version metadata, on-chain querying, and compatibility constraints for every Lumora / crabwise contract.
 
 Related: [UPGRADE_AND_ROLLBACK.md](./UPGRADE_AND_ROLLBACK.md), [MAINTENANCE_WINDOWS.md](./MAINTENANCE_WINDOWS.md), [CHANGELOG.md](../CHANGELOG.md).
 

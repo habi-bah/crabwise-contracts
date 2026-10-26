@@ -1,10 +1,10 @@
-//! Shared helpers for the StellarAid Rust SDK examples.
+//! Shared helpers for the crabwise Rust SDK examples.
 //!
 //! Everything here uses only the **public** API of the `sdk` crate and the
 //! Soroban XDR types, so each example can stay short and readable while still
 //! being complete and runnable (`cargo run --bin <name> -- ...`).
 
-use sdk::errors::{Result, StellarAidError};
+use sdk::errors::{Result, crabwiseError};
 use sdk::horizon::client::HorizonClient;
 use sdk::soroban::rpc_client::{SimulationResult, SorobanRpcClient, TransactionStatus};
 use sdk::transaction_builder::NetworkConfig;
@@ -45,7 +45,7 @@ pub fn sc_address(address: &str) -> ScAddress {
 /// Convert a `&str` into a Soroban contract-function-name `Symbol`.
 fn function_symbol(name: &str) -> Result<Symbol> {
     name.try_into()
-        .map_err(|_| StellarAidError::validation(format!("invalid function name `{name}`")))
+        .map_err(|_| crabwiseError::validation(format!("invalid function name `{name}`")))
 }
 
 // ── ScVal argument builders ────────────────────────────────────────────────
@@ -151,11 +151,11 @@ pub async fn simulate_invocation(
     let account = horizon
         .get_account(source)
         .await
-        .map_err(|e| StellarAidError::horizon(format!("fetching account failed: {e}")))?;
+        .map_err(|e| crabwiseError::horizon(format!("fetching account failed: {e}")))?;
     let seq: u64 = account
         .sequence
         .parse()
-        .map_err(|_| StellarAidError::horizon("unexpected sequence number"))?;
+        .map_err(|_| crabwiseError::horizon("unexpected sequence number"))?;
 
     let source_account = source_source_account(source)?;
 
@@ -167,12 +167,12 @@ pub async fn simulate_invocation(
     let envelope = TransactionEnvelope::EnvelopeTypeTx(tx.clone());
     let xdr = envelope
         .to_xdr_base64()
-        .map_err(|e| StellarAidError::validation(format!("XDR encoding failed: {e}")))?;
+        .map_err(|e| crabwiseError::validation(format!("XDR encoding failed: {e}")))?;
 
     let simulation = rpc
         .simulate_transaction(&xdr)
         .await
-        .map_err(|e| StellarAidError::soroban(format!("simulation failed: {e}")))?;
+        .map_err(|e| crabwiseError::soroban(format!("simulation failed: {e}")))?;
 
     let sim_fee = simulation
         .cost
@@ -184,7 +184,7 @@ pub async fn simulate_invocation(
     tx.fee = sim_fee + 100;
     let envelope_with_fee = TransactionEnvelope::EnvelopeTypeTx(tx)
         .to_xdr_base64()
-        .map_err(|e| StellarAidError::validation(format!("XDR encoding failed: {e}")))?;
+        .map_err(|e| crabwiseError::validation(format!("XDR encoding failed: {e}")))?;
 
     Ok(SimulatedInvocation {
         simulation,
@@ -196,10 +196,10 @@ pub async fn simulate_invocation(
 /// Build the `MuxedAccount` source from a `G...` strkey.
 fn source_source_account(source: &str) -> Result<MuxedAccount> {
     let strkey = stellar_strkey::Strkey::from_string(source)
-        .map_err(|_| StellarAidError::validation("invalid source address"))?;
+        .map_err(|_| crabwiseError::validation("invalid source address"))?;
     match strkey {
         stellar_strkey::Strkey::PublicKeyEd25519(pk) => Ok(MuxedAccount::Ed25519(Uint256(pk.0))),
-        _ => Err(StellarAidError::validation("source must be a G... account")),
+        _ => Err(crabwiseError::validation("source must be a G... account")),
     }
 }
 
@@ -217,7 +217,7 @@ pub async fn send_and_listen(
     let send = rpc
         .send_transaction(envelope)
         .await
-        .map_err(|e| StellarAidError::soroban(format!("send failed: {e}")))?;
+        .map_err(|e| crabwiseError::soroban(format!("send failed: {e}")))?;
     let tx_hash = send.hash;
     println!("{description}");
     println!("  submitted. tx hash: {tx_hash}");
@@ -227,7 +227,7 @@ pub async fn send_and_listen(
         let status = rpc
             .get_transaction_status(&tx_hash)
             .await
-            .map_err(|e| StellarAidError::soroban(format!("status poll failed: {e}")))?;
+            .map_err(|e| crabwiseError::soroban(format!("status poll failed: {e}")))?;
         println!(
             "  poll -> {}",
             match &status {

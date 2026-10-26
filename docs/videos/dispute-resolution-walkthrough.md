@@ -3,7 +3,7 @@
 * **Video Title:** *Autonomous Dispute Arbitration, Basis-Point Splitting, and Fallback Timelocks*
 * **Video Duration:** 16 minutes 15 seconds
 * **Contract Under Review:** [`contracts/dispute_arbiter/src/lib.rs`](../../contracts/dispute_arbiter/src/lib.rs)
-* **Recording Link:** [Watch on StellarAid DevPortal](https://dev.stellaraid.org/videos/03-dispute-arbiter) | [IPFS Mirror](ipfs://QmDisputeArbiterWalkthroughVideo2026)
+* **Recording Link:** [Watch on crabwise DevPortal](https://dev.crabwise.org/videos/03-dispute-arbiter) | [IPFS Mirror](ipfs://QmDisputeArbiterWalkthroughVideo2026)
 
 ---
 

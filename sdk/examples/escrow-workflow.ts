@@ -1,5 +1,5 @@
 /**
- * StellarAid SDK Example: Escrow Lifecycle Workflow
+ * crabwise SDK Example: Escrow Lifecycle Workflow
  *
  * Demonstrates:
  * 1. Creating a funded escrow (locking USDC tokens).

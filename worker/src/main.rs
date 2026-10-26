@@ -20,7 +20,7 @@ use axum::{
     Router,
 };
 use sdk::{
-    errors::StellarAidError,
+    errors::crabwiseError,
     retry::{retry_async, RetryConfig},
     soroban::rpc_client::{SimulationResult, SorobanRpcClient},
     transaction_builder::{build_donate_transaction_full, DonationParams, NetworkConfig},
@@ -229,7 +229,7 @@ async fn submit_donation(
     let xdr = match retry_async(&retry_config, || async {
         build_donate_transaction_full(&params, &network)
             .await
-            .map_err(|e| StellarAidError::SorobanError(e.to_string()))
+            .map_err(|e| crabwiseError::SorobanError(e.to_string()))
     })
     .await
     {
@@ -438,7 +438,7 @@ async fn get_donation(
     let status = match retry_async(&RetryConfig::default(), || async {
         rpc.get_transaction_status(&tx_hash)
             .await
-            .map_err(|e| StellarAidError::SorobanError(e.to_string()))
+            .map_err(|e| crabwiseError::SorobanError(e.to_string()))
     })
     .await
     {
@@ -540,7 +540,7 @@ async fn metrics_endpoint(State(state): State<Arc<AppState>>) -> impl IntoRespon
 #[tokio::main]
 async fn main() {
     let _ = logging::init_logging();
-    info!(event = "worker_startup", "StellarAid worker starting");
+    info!(event = "worker_startup", "crabwise worker starting");
 
     let network_config = NetworkConfig {
         rpc_url: std::env::var("SOROBAN_RPC_URL")
@@ -615,7 +615,7 @@ async fn main() {
     .unwrap();
 
     shutdown_complete.store(true, Ordering::SeqCst);
-    info!("StellarAid worker stopped");
+    info!("crabwise worker stopped");
 }
 
 #[cfg(test)]

@@ -1,7 +1,7 @@
-# @stellaraid/wallet-adapters
+# @crabwise/wallet-adapters
 
 Unified wallet-adapter interface plus contract-interaction bindings for the
-StellarAid contracts.
+crabwise contracts.
 
 ## Wallet adapters (`src/wallet`)
 
@@ -52,7 +52,7 @@ realistic fee, sign through the wallet, submit and poll
 
 ### Argument encoding
 
-`toScVal` converts JS values to Soroban `ScVal`s. StellarAid amounts are
+`toScVal` converts JS values to Soroban `ScVal`s. crabwise amounts are
 `i128`, so they are passed explicitly:
 
 ```ts

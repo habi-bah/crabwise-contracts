@@ -1,4 +1,4 @@
-use crate::errors::{Result, StellarAidError};
+use crate::errors::{Result, crabwiseError};
 
 /// Represents the connection state of a Stellar wallet.
 #[derive(Clone, Debug, PartialEq)]
@@ -44,13 +44,13 @@ impl Wallet {
             self.state = WalletConnectionState::Error {
                 message: "wallet connection is only available in a browser (wasm32) environment".into(),
             };
-            Err(StellarAidError::WalletConnection("not a wasm target".into()))
+            Err(crabwiseError::WalletConnection("not a wasm target".into()))
         }
     }
 
     #[cfg(target_arch = "wasm32")]
     fn try_wasm_connect(&self) -> Result<String> {
-        Err(StellarAidError::WalletConnection("Freighter / Albedo not detected".into()))
+        Err(crabwiseError::WalletConnection("Freighter / Albedo not detected".into()))
     }
 
     pub fn disconnect(&mut self) {
@@ -61,13 +61,13 @@ impl Wallet {
         match &self.state {
             WalletConnectionState::Connected { public_key } => Ok(public_key),
             WalletConnectionState::Disconnected => {
-                Err(StellarAidError::WalletConnection("wallet is disconnected".into()))
+                Err(crabwiseError::WalletConnection("wallet is disconnected".into()))
             }
             WalletConnectionState::Connecting => {
-                Err(StellarAidError::WalletConnection("wallet connection is in progress".into()))
+                Err(crabwiseError::WalletConnection("wallet connection is in progress".into()))
             }
             WalletConnectionState::Error { message } => {
-                Err(StellarAidError::WalletConnection(format!("previous error: {}", message)))
+                Err(crabwiseError::WalletConnection(format!("previous error: {}", message)))
             }
         }
     }

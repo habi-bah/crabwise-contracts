@@ -1,5 +1,5 @@
 /**
- * StellarAid SDK Example: Robust Error Handling & Resilience
+ * crabwise SDK Example: Robust Error Handling & Resilience
  *
  * Demonstrates:
  * 1. Parsing and mapping Soroban Contract Errors (ScError / error codes).
@@ -11,7 +11,7 @@
 import { xdr, scValToNative } from '@stellar/stellar-sdk';
 
 /**
- * Standard StellarAid Contract Error Codes
+ * Standard crabwise Contract Error Codes
  */
 export enum EscrowErrorCode {
   AlreadyExists = 1,
@@ -61,9 +61,9 @@ export enum DisputeErrorCode {
 }
 
 /**
- * Custom typed error class for StellarAid contract exceptions.
+ * Custom typed error class for crabwise contract exceptions.
  */
-export class StellarAidContractError extends Error {
+export class crabwiseContractError extends Error {
   constructor(
     public readonly domain: 'Escrow' | 'Agreement' | 'Dispute' | 'Config' | 'Unknown',
     public readonly code: number,
@@ -71,18 +71,18 @@ export class StellarAidContractError extends Error {
     public readonly rawError?: any
   ) {
     super(`[${domain} Error #${code}] ${description}`);
-    this.name = 'StellarAidContractError';
+    this.name = 'crabwiseContractError';
   }
 }
 
 /**
  * Helper to parse Soroban RPC simulation and invocation errors.
  */
-export function parseContractError(error: any): StellarAidContractError {
+export function parseContractError(error: any): crabwiseContractError {
   // 1. Inspect ScError XDR if present
   if (error?.code && typeof error.code === 'number') {
     const code = error.code;
-    return new StellarAidContractError(
+    return new crabwiseContractError(
       'Escrow',
       code,
       EscrowErrorCode[code] || 'Unknown contract error',
@@ -95,7 +95,7 @@ export function parseContractError(error: any): StellarAidContractError {
     const match = error.message.match(/ContractError\((\d+)\)/);
     if (match) {
       const code = parseInt(match[1], 10);
-      return new StellarAidContractError(
+      return new crabwiseContractError(
         'Escrow',
         code,
         `Contract panicked with error code ${code}`,
@@ -104,7 +104,7 @@ export function parseContractError(error: any): StellarAidContractError {
     }
   }
 
-  return new StellarAidContractError('Unknown', 0, error?.message || 'Unrecognized error', error);
+  return new crabwiseContractError('Unknown', 0, error?.message || 'Unrecognized error', error);
 }
 
 /**

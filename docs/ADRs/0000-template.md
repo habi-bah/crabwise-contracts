@@ -2,7 +2,7 @@
 
 * **Status:** Accepted
 * **Date:** 2026-01-15
-* **Authors:** StellarAid Architecture Working Group
+* **Authors:** crabwise Architecture Working Group
 * **Deciders:** Core Engineering Team
 * **Component:** Documentation / All Contracts
 
@@ -10,7 +10,7 @@
 
 ## Context and Problem Statement
 
-As the StellarAid ecosystem expands with multiple smart contracts, SDK libraries, and client applications, architectural decisions must be documented in a standardized format. Without explicit decision records, design rationale is lost over time, leading to regressions and suboptimal refactoring.
+As the crabwise ecosystem expands with multiple smart contracts, SDK libraries, and client applications, architectural decisions must be documented in a standardized format. Without explicit decision records, design rationale is lost over time, leading to regressions and suboptimal refactoring.
 
 ## Decision Drivers
 

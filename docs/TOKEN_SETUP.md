@@ -2,7 +2,7 @@
 
 ## Overview
 
-StellarAid issues a custom `AID` asset on the Stellar network using an issuing account and a distribution account.
+crabwise issues a custom `AID` asset on the Stellar network using an issuing account and a distribution account.
 
 ## Setup Steps
 

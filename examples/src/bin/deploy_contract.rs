@@ -1,4 +1,4 @@
-//! Deploy a compiled StellarAid contract WASM to testnet (issue #867).
+//! Deploy a compiled crabwise contract WASM to testnet (issue #867).
 //!
 //! Usage:
 //!   STELLAR=G... DEPLOYER_ADDRESS=G... \
@@ -9,20 +9,20 @@
 //! The simulation validates that the WASM is accepted before anything is
 //! submitted; signing + submission is left to the wallet layer.
 
-use sdk::errors::StellarAidError;
+use sdk::errors::crabwiseError;
 
 use stellar_aid_examples::{create_contract_host_function, network_from_env, simulate_invocation};
 
 #[tokio::main]
-async fn main() -> Result<(), StellarAidError> {
+async fn main() -> Result<(), crabwiseError> {
     let wasm_path = std::env::args().nth(1).ok_or_else(|| {
-        StellarAidError::validation("usage: deploy_contract <path/to/contract.wasm>")
+        crabwiseError::validation("usage: deploy_contract <path/to/contract.wasm>")
     })?;
     let deployer = std::env::var("DEPLOYER_ADDRESS")
-        .map_err(|_| StellarAidError::validation("set DEPLOYER_ADDRESS (a G... account)"))?;
+        .map_err(|_| crabwiseError::validation("set DEPLOYER_ADDRESS (a G... account)"))?;
 
     let wasm = std::fs::read(&wasm_path)
-        .map_err(|e| StellarAidError::validation(format!("cannot read {wasm_path}: {e}")))?;
+        .map_err(|e| crabwiseError::validation(format!("cannot read {wasm_path}: {e}")))?;
     let network = network_from_env();
 
     // A deterministic salt is fine for a demo; rotate it per real deployment.
@@ -41,7 +41,7 @@ async fn main() -> Result<(), StellarAidError> {
     match &invocation.simulation.error {
         Some(err) => {
             println!("simulation rejected the deployment: {err}");
-            return Err(StellarAidError::contract(err.to_string()));
+            return Err(crabwiseError::contract(err.to_string()));
         }
         None => println!("simulation OK, envelope ready: {}", invocation.envelope_with_fee),
     }

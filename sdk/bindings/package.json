@@ -1,5 +1,5 @@
 {
-  "name": "@stellaraid/wallet-adapters",
+  "name": "@crabwise/wallet-adapters",
   "version": "0.1.0",
   "description": "Unified wallet adapter interface for Freighter, Albedo, and Lobstr",
   "main": "dist/index.js",

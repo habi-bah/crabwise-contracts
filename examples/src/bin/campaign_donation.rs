@@ -7,11 +7,11 @@
 //!
 //! Uses `sdk::transaction_builder::build_donate_transaction_full`, the same
 //! code path the worker calls, so the example is a faithful reference for
-//! how applications drive StellarAid donations.
+//! how applications drive crabwise donations.
 
 use std::error::Error;
 
-use sdk::errors::StellarAidError;
+use sdk::errors::crabwiseError;
 use sdk::transaction_builder::DonationParams;
 
 use stellar_aid_examples::network_from_env;
@@ -19,17 +19,17 @@ use stellar_aid_examples::network_from_env;
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     let mut args = std::env::args().skip(1);
-    let donor = args.next().ok_or_else(|| StellarAidError::validation("usage: campaign_donation DONOR CAMPAIGN_ID AMOUNT"))?;
+    let donor = args.next().ok_or_else(|| crabwiseError::validation("usage: campaign_donation DONOR CAMPAIGN_ID AMOUNT"))?;
     let campaign_id: u64 = args
         .next()
         .and_then(|a| a.parse().ok())
-        .ok_or_else(|| StellarAidError::validation("campaign id must be a u64"))?;
+        .ok_or_else(|| crabwiseError::validation("campaign id must be a u64"))?;
     let amount: i128 = args
         .next()
         .and_then(|a| a.parse().ok())
-        .ok_or_else(|| StellarAidError::validation("amount must be an i128"))?;
+        .ok_or_else(|| crabwiseError::validation("amount must be an i128"))?;
     let donation_contract_id = std::env::var("DONATION_CONTRACT_ID")
-        .map_err(|_| StellarAidError::validation("set DONATION_CONTRACT_ID (a C... address)"))?;
+        .map_err(|_| crabwiseError::validation("set DONATION_CONTRACT_ID (a C... address)"))?;
     let memo = std::env::var("DONATION_MEMO").ok();
 
     let network = network_from_env();

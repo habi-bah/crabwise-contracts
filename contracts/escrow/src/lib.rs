@@ -1,6 +1,6 @@
 //! Escrow Smart Contract
 //!
-//! Handles locking, releasing, refunding, and dispute escrow workflows for StellarAid.
+//! Handles locking, releasing, refunding, and dispute escrow workflows for crabwise.
 //! Architecture Decision: [ADR-0002](../../docs/ADRs/0002-escrow-architecture-and-state-machine.md)
 //! See also: [ADR-0007](../../docs/ADRs/0007-storage-data-model-and-ttl-management.md)
 

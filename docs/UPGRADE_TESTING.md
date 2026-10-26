@@ -1,6 +1,6 @@
 # Upgrade Testing (closes #689)
 
-How upgrades are tested for the StellarAid workspace before any release is cut.
+How upgrades are tested for the crabwise workspace before any release is cut.
 
 ## Why this crate exists
 

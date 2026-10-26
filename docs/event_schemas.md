@@ -1,8 +1,8 @@
-# StellarAid Event Schemas and Contract Signals
+# crabwise Event Schemas and Contract Signals
 
 ## Overview
 
-This document describes the events emitted by StellarAid smart contracts.
+This document describes the events emitted by crabwise smart contracts.
 
 ---
 

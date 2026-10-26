@@ -11,7 +11,7 @@
 //! * `Ok(EndpointHealth { healthy: true, .. })` — the endpoint answered.
 //! * `Ok(EndpointHealth { healthy: false, .. })` — the endpoint answered but
 //!   reported itself unhealthy (e.g. a non-2xx status).
-//! * `Err(StellarAidError::EndpointUnreachable | RequestTimeout)` — the endpoint
+//! * `Err(crabwiseError::EndpointUnreachable | RequestTimeout)` — the endpoint
 //!   did not answer at all. These are the retryable variants.
 
 use std::time::Duration;

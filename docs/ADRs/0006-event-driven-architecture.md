@@ -2,7 +2,7 @@
 
 * **Status:** Accepted
 * **Date:** 2026-03-25
-* **Authors:** StellarAid Data & Indexing Team
+* **Authors:** crabwise Data & Indexing Team
 * **Deciders:** Core Engineering Team
 * **Component:** All Contracts / Off-chain Indexer
 

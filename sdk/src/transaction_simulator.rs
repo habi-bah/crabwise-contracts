@@ -1,4 +1,4 @@
-use crate::errors::{Result, StellarAidError};
+use crate::errors::{Result, crabwiseError};
 use crate::soroban::rpc_client::SorobanRpcClient;
 
 /// Simulates a Soroban contract invocation before submission.
@@ -39,10 +39,10 @@ impl<'a> TransactionSimulator<'a> {
         args_xdr: &[u8],
     ) -> Result<SimulateResult> {
         if contract_id.is_empty() {
-            return Err(StellarAidError::ValidationError("contract_id must not be empty".into()));
+            return Err(crabwiseError::ValidationError("contract_id must not be empty".into()));
         }
         if function_name.is_empty() {
-            return Err(StellarAidError::ValidationError("function_name must not be empty".into()));
+            return Err(crabwiseError::ValidationError("function_name must not be empty".into()));
         }
 
         let tx_xdr = self.build_tx_envelope_base64(contract_id, function_name, args_xdr)?;
@@ -117,7 +117,7 @@ impl<'a> TransactionSimulator<'a> {
         let envelope = self.build_envelope_struct(contract_id, function_name, args_xdr)?;
         envelope
             .to_xdr(stellar_xdr::curr::Limits::none())
-            .map_err(|e| StellarAidError::validation(format!("XDR encoding failed: {}", e)))
+            .map_err(|e| crabwiseError::validation(format!("XDR encoding failed: {}", e)))
     }
 
     /// Build a base64-encoded transaction envelope XDR string.
@@ -132,7 +132,7 @@ impl<'a> TransactionSimulator<'a> {
         let envelope = self.build_envelope_struct(contract_id, function_name, args_xdr)?;
         envelope
             .to_xdr_base64(stellar_xdr::curr::Limits::none())
-            .map_err(|e| StellarAidError::validation(format!("XDR encoding failed: {}", e)))
+            .map_err(|e| crabwiseError::validation(format!("XDR encoding failed: {}", e)))
     }
 
     fn build_envelope_struct(
@@ -149,10 +149,10 @@ impl<'a> TransactionSimulator<'a> {
         };
 
         if contract_id.is_empty() {
-            return Err(StellarAidError::ValidationError("contract_id must not be empty".into()));
+            return Err(crabwiseError::ValidationError("contract_id must not be empty".into()));
         }
         if function_name.is_empty() {
-            return Err(StellarAidError::ValidationError("function_name must not be empty".into()));
+            return Err(crabwiseError::ValidationError("function_name must not be empty".into()));
         }
 
         let source_account = match stellar_strkey::Strkey::from_string(self.source_account) {
@@ -181,7 +181,7 @@ impl<'a> TransactionSimulator<'a> {
 
         let sym_name: ScSymbol = function_name
             .try_into()
-            .map_err(|_| StellarAidError::ValidationError("invalid function name".into()))?;
+            .map_err(|_| crabwiseError::ValidationError("invalid function name".into()))?;
 
         let mut args_vec = Vec::new();
         if !args_xdr.is_empty() {
@@ -191,7 +191,7 @@ impl<'a> TransactionSimulator<'a> {
         }
         let args_m: VecM<ScVal> = args_vec
             .try_into()
-            .map_err(|_| StellarAidError::ValidationError("args too large".into()))?;
+            .map_err(|_| crabwiseError::ValidationError("args too large".into()))?;
 
         let host_fn = HostFunction::InvokeContract(InvokeContractArgs {
             contract_address: contract_addr,
@@ -209,7 +209,7 @@ impl<'a> TransactionSimulator<'a> {
 
         let ops: VecM<Operation, 100> = vec![op]
             .try_into()
-            .map_err(|_| StellarAidError::ValidationError("operations too large".into()))?;
+            .map_err(|_| crabwiseError::ValidationError("operations too large".into()))?;
 
         let tx = Transaction {
             source_account,
@@ -241,7 +241,7 @@ impl<'a> TransactionSimulator<'a> {
     ) -> Result<(u64, u64)> {
         let sim = self.simulate_contract_call(contract_id, function_name, args_xdr).await?;
         if !sim.success {
-            return Err(StellarAidError::soroban(
+            return Err(crabwiseError::soroban(
                 sim.error_message.unwrap_or_else(|| "Simulation failed".into()),
             ));
         }

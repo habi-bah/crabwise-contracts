@@ -1,5 +1,5 @@
 /**
- * StellarAid SDK Example: Dispute Resolution & Arbitration
+ * crabwise SDK Example: Dispute Resolution & Arbitration
  *
  * Demonstrates:
  * 1. Initiating an on-chain dispute on a locked escrow.

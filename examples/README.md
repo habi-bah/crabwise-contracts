@@ -1,7 +1,7 @@
-# StellarAid Rust SDK Examples (issue #867)
+# crabwise Rust SDK Examples (issue #867)
 
-Complete, runnable Rust programs that show how to drive StellarAid contracts and
-the StellarAid Rust SDK (`sdk/`) from an application. Each example is a proper
+Complete, runnable Rust programs that show how to drive crabwise contracts and
+the crabwise Rust SDK (`sdk/`) from an application. Each example is a proper
 `src/bin/<name>.rs` binary in this standalone crate, so it can be run directly:
 
 ```bash

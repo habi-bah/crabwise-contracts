@@ -2,7 +2,7 @@
 
 * **Status:** Accepted
 * **Date:** 2026-03-10
-* **Authors:** StellarAid Tokenomics Team
+* **Authors:** crabwise Tokenomics Team
 * **Deciders:** Foundation Governance
 * **Component:** Platform Config (`contracts/platform_config`) & Revenue Sharing (`contracts/revenue_sharing`)
 

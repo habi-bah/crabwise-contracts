@@ -1,7 +1,7 @@
 {
-  "name": "@stellaraid/wallets",
+  "name": "@crabwise/wallets",
   "version": "0.1.0",
-  "description": "Wallet helpers for StellarAid — Freighter, Albedo, Lobstr",
+  "description": "Wallet helpers for crabwise — Freighter, Albedo, Lobstr",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {

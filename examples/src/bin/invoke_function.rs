@@ -7,10 +7,10 @@
 //! Arguments are typed: `address:G...` | `u64:5` | `i128:1000` |
 //! `symbol:name` | `string:hello`.
 //!
-//! This is the generic building block behind every StellarAid integration:
+//! This is the generic building block behind every crabwise integration:
 //! encode a host-function call, simulate it, and read the cost + result.
 
-use sdk::errors::{Result, StellarAidError};
+use sdk::errors::{Result, crabwiseError};
 use soroban_sdk::xdr::ScVal;
 
 use stellar_aid_examples::{
@@ -21,22 +21,22 @@ use stellar_aid_examples::{
 fn parse_arg(raw: &str) -> Result<ScVal> {
     let (kind, value) = raw
         .split_once(':')
-        .ok_or_else(|| StellarAidError::validation(format!("arg `{raw}` must be <type>:<value>")))?;
+        .ok_or_else(|| crabwiseError::validation(format!("arg `{raw}` must be <type>:<value>")))?;
     match kind {
         "address" => Ok(sc_val_address(value)),
         "u64" => Ok(sc_val_u64(
             value
                 .parse()
-                .map_err(|_| StellarAidError::validation(format!("bad u64 `{value}`")))?,
+                .map_err(|_| crabwiseError::validation(format!("bad u64 `{value}`")))?,
         )),
         "i128" => Ok(sc_val_i128(
             value
                 .parse()
-                .map_err(|_| StellarAidError::validation(format!("bad i128 `{value}`")))?,
+                .map_err(|_| crabwiseError::validation(format!("bad i128 `{value}`")))?,
         )),
         "symbol" => Ok(sc_val_symbol(value)),
         "string" => Ok(sc_val_string(value)),
-        _ => Err(StellarAidError::validation(format!(
+        _ => Err(crabwiseError::validation(format!(
             "unknown arg type `{kind}` (expected address|u64|i128|symbol|string)"
         ))),
     }
@@ -47,13 +47,13 @@ async fn main() -> Result<()> {
     let mut args = std::env::args().skip(1);
     let source = args
         .next()
-        .ok_or_else(|| StellarAidError::validation("usage: invoke_function SOURCE CONTRACT_ID FUNCTION [args...]"))?;
+        .ok_or_else(|| crabwiseError::validation("usage: invoke_function SOURCE CONTRACT_ID FUNCTION [args...]"))?;
     let contract_id = args
         .next()
-        .ok_or_else(|| StellarAidError::validation("usage: invoke_function SOURCE CONTRACT_ID FUNCTION [args...]"))?;
+        .ok_or_else(|| crabwiseError::validation("usage: invoke_function SOURCE CONTRACT_ID FUNCTION [args...]"))?;
     let function = args
         .next()
-        .ok_or_else(|| StellarAidError::validation("usage: invoke_function SOURCE CONTRACT_ID FUNCTION [args...]"))?;
+        .ok_or_else(|| crabwiseError::validation("usage: invoke_function SOURCE CONTRACT_ID FUNCTION [args...]"))?;
     let call_args = args.map(|a| parse_arg(&a)).collect::<Result<Vec<_>>>()?;
 
     let network = network_from_env();

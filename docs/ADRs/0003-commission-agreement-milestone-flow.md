@@ -2,7 +2,7 @@
 
 * **Status:** Accepted
 * **Date:** 2026-02-15
-* **Authors:** StellarAid Product & Architecture Team
+* **Authors:** crabwise Product & Architecture Team
 * **Deciders:** Smart Contract Engineers
 * **Component:** Commission Agreement (`contracts/commission_agreement`)
 

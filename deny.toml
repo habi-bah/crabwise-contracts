@@ -1,4 +1,4 @@
-# cargo-deny configuration for the stellarAid workspace (closes #879).
+# cargo-deny configuration for the crabwise workspace (closes #879).
 #
 # Smart contracts hold real value, so the dependency graph gets the same
 # scrutiny as the contract code itself. `make deny` runs every check below.

@@ -47,7 +47,7 @@ while [ $# -gt 0 ]; do
 done
 
 printf '╔══════════════════════════════════════════════════════════════╗\n'
-printf '║  Post-deploy verification — StellarAid (%-8s)         ║\n' "$NETWORK"
+printf '║  Post-deploy verification — crabwise (%-8s)         ║\n' "$NETWORK"
 printf '╚══════════════════════════════════════════════════════════════╝\n'
 
 # ── Inputs ──────────────────────────────────────────────────────────────────

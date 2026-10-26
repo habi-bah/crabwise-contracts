@@ -1,6 +1,6 @@
 # Deployment Configuration
 
-This document describes environment variables, secret management, network configurations, and deployment procedures for deploying the StellarAid platform.
+This document describes environment variables, secret management, network configurations, and deployment procedures for deploying the crabwise platform.
 
 ## Environment Variables
 

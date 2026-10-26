@@ -100,10 +100,10 @@ make lint       # cargo clippy --all-targets -- -D warnings
 
 ```bash
 # Build and test image (runs fmt, clippy and the full test suite).
-docker build --target test -t stellaraid-contracts:test .
+docker build --target test -t crabwise-contracts:test .
 
 # Build/verify image used for preflight, deploy and verification.
-docker build -t stellaraid-contracts .
+docker build -t crabwise-contracts .
 ```
 
 Stage order, chosen so the slow network-bound step is cached independently of
