@@ -252,13 +252,18 @@ pub fn maybe_auto_halt(env: &Env) -> bool {
     let error_bps = health::error_bps(&metrics);
     let threshold = get_halt_error_bps(env);
 
-    if error_bps < threshold {
+    // Strictly above: the threshold is the boundary the rate has to *cross*,
+    // so a rate that sits exactly on it does not halt the contract.
+    if error_bps <= threshold {
         return false;
     }
 
     // Flapping guard: don't auto-halt again within `MIN_HALT_INTERVAL_LEDGERS`.
+    // A stored `0` means no auto-halt has ever happened, so it must not count
+    // as a halt in the current interval (which would block the first one).
     let now = env.ledger().sequence();
-    if now.saturating_sub(last_halt_ledger(env)) < MIN_HALT_INTERVAL_LEDGERS {
+    let last_halt = last_halt_ledger(env);
+    if last_halt != 0 && now.saturating_sub(last_halt) < MIN_HALT_INTERVAL_LEDGERS {
         return false;
     }
 
@@ -530,13 +535,16 @@ mod tests {
             })
         });
 
-        // Record 5 errors out of 10 calls (50% error rate, well above 5%)
+        // Record 5 errors out of 10 calls (50% error rate, well above 5%).
+        // The failures come last: `record_success` does not evaluate the
+        // breaker, so only a failure that brings the sample count to the
+        // minimum can halt.
         on(&env, &id, || {
             for _ in 0..5 {
-                record_failure(&env);
+                record_success(&env);
             }
             for _ in 0..5 {
-                record_success(&env);
+                record_failure(&env);
             }
         });
 

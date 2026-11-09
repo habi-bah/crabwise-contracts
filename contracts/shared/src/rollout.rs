@@ -481,75 +481,93 @@ mod tests {
         Symbol::new(env, std::format!("f{}", i).as_str())
     }
 
+    /// Instance storage is only reachable from inside a deployed contract.
+    fn with_contract<T>(env: &Env, f: impl FnOnce() -> T) -> T {
+        let contract_id = env.register_contract(None, crate::TestContract);
+        env.as_contract(&contract_id, f)
+    }
+
     #[test]
     fn flag_cap_defaults_to_the_ceiling() {
         let env = Env::default();
-        assert_eq!(flag_cap(&env), MAX_FEATURE_FLAGS);
-        assert_eq!(get_state(&env).flag_cap, MAX_FEATURE_FLAGS);
+        with_contract(&env, || {
+            assert_eq!(flag_cap(&env), MAX_FEATURE_FLAGS);
+            assert_eq!(get_state(&env).flag_cap, MAX_FEATURE_FLAGS);
+        });
     }
 
     #[test]
     fn set_flag_cap_rejects_zero_and_anything_above_the_ceiling() {
         let env = Env::default();
-        assert_eq!(set_flag_cap(&env, 0), Err(RolloutError::InvalidFlagCap));
-        assert_eq!(
-            set_flag_cap(&env, MAX_FEATURE_FLAGS + 1),
-            Err(RolloutError::InvalidFlagCap)
-        );
-        // A lowering within the ceiling is accepted and reported.
-        assert_eq!(set_flag_cap(&env, 4), Ok(()));
-        assert_eq!(flag_cap(&env), 4);
+        with_contract(&env, || {
+            assert_eq!(set_flag_cap(&env, 0), Err(RolloutError::InvalidFlagCap));
+            assert_eq!(
+                set_flag_cap(&env, MAX_FEATURE_FLAGS + 1),
+                Err(RolloutError::InvalidFlagCap)
+            );
+            // A lowering within the ceiling is accepted and reported.
+            assert_eq!(set_flag_cap(&env, 4), Ok(()));
+            assert_eq!(flag_cap(&env), 4);
+        });
     }
 
     #[test]
     fn exactly_the_cap_is_accepted() {
         let env = Env::default();
-        for i in 0..MAX_FEATURE_FLAGS {
-            set_feature_flag(&env, &flag(&env, i), true);
-        }
-        assert_eq!(get_state(&env).flag_count, MAX_FEATURE_FLAGS);
+        with_contract(&env, || {
+            for i in 0..MAX_FEATURE_FLAGS {
+                set_feature_flag(&env, &flag(&env, i), true);
+            }
+            assert_eq!(get_state(&env).flag_count, MAX_FEATURE_FLAGS);
+        });
     }
 
     #[test]
     fn one_past_the_cap_is_rejected() {
         let env = Env::default();
-        for i in 0..MAX_FEATURE_FLAGS {
-            set_feature_flag(&env, &flag(&env, i), true);
-        }
-        let res = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-            set_feature_flag(&env, &flag(&env, MAX_FEATURE_FLAGS), true);
-        }));
-        assert!(res.is_err(), "flag {} must be refused", MAX_FEATURE_FLAGS);
-        // The refused flag was not recorded.
-        assert_eq!(get_state(&env).flag_count, MAX_FEATURE_FLAGS);
+        with_contract(&env, || {
+            for i in 0..MAX_FEATURE_FLAGS {
+                set_feature_flag(&env, &flag(&env, i), true);
+            }
+            let res = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                set_feature_flag(&env, &flag(&env, MAX_FEATURE_FLAGS), true);
+            }));
+            assert!(res.is_err(), "flag {} must be refused", MAX_FEATURE_FLAGS);
+            // The refused flag was not recorded.
+            assert_eq!(get_state(&env).flag_count, MAX_FEATURE_FLAGS);
+        });
     }
 
     #[test]
     fn toggling_an_existing_flag_is_allowed_at_the_cap() {
         let env = Env::default();
-        for i in 0..MAX_FEATURE_FLAGS {
-            set_feature_flag(&env, &flag(&env, i), true);
-        }
-        // Re-setting an existing flag does not grow the index, so it is fine.
-        set_feature_flag(&env, &flag(&env, 0), false);
-        assert!(!is_feature_enabled(&env, &flag(&env, 0)));
-        assert_eq!(get_state(&env).flag_count, MAX_FEATURE_FLAGS);
+        with_contract(&env, || {
+            for i in 0..MAX_FEATURE_FLAGS {
+                set_feature_flag(&env, &flag(&env, i), true);
+            }
+            // Re-setting an existing flag does not grow the index, so it is fine.
+            set_feature_flag(&env, &flag(&env, 0), false);
+            assert!(!is_feature_enabled(&env, &flag(&env, 0)));
+            assert_eq!(get_state(&env).flag_count, MAX_FEATURE_FLAGS);
+        });
     }
 
     #[test]
     fn a_lowered_cap_blocks_new_flags_but_leaves_existing_ones_working() {
         let env = Env::default();
-        for i in 0..4 {
-            set_feature_flag(&env, &flag(&env, i), true);
-        }
-        set_flag_cap(&env, 2).unwrap();
-        // Existing flags keep their value...
-        assert!(is_feature_enabled(&env, &flag(&env, 1)));
-        // ...but a new one is refused.
-        let res = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-            set_feature_flag(&env, &flag(&env, 9), true);
-        }));
-        assert!(res.is_err());
+        with_contract(&env, || {
+            for i in 0..4 {
+                set_feature_flag(&env, &flag(&env, i), true);
+            }
+            set_flag_cap(&env, 2).unwrap();
+            // Existing flags keep their value...
+            assert!(is_feature_enabled(&env, &flag(&env, 1)));
+            // ...but a new one is refused.
+            let res = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                set_feature_flag(&env, &flag(&env, 9), true);
+            }));
+            assert!(res.is_err());
+        });
     }
 
     #[test]

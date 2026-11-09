@@ -124,25 +124,35 @@ mod tests {
 
     use super::*;
 
+    /// Instance storage is only reachable from inside a deployed contract.
+    fn with_contract<T>(env: &Env, f: impl FnOnce() -> T) -> T {
+        let contract_id = env.register_contract(None, crate::TestContract);
+        env.as_contract(&contract_id, f)
+    }
+
     #[test]
     fn lock_is_free_before_and_after_the_guarded_call() {
         let env = Env::default();
-        assert!(!is_locked(&env));
-        let out = with_reentrancy_guard(&env, || {
-            assert!(is_locked(&env));
-            7_u32
+        assert!(!with_contract(&env, || is_locked(&env)));
+        let out = with_contract(&env, || {
+            with_reentrancy_guard(&env, || {
+                assert!(is_locked(&env));
+                7_u32
+            })
         });
         assert_eq!(out, 7);
-        assert!(!is_locked(&env));
+        assert!(!with_contract(&env, || is_locked(&env)));
     }
 
     #[test]
     fn nested_guard_is_rejected() {
         let env = Env::default();
         let res = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-            with_reentrancy_guard(&env, || {
-                // Simulates a re-entrant call arriving mid-mutation.
-                acquire(&env);
+            with_contract(&env, || {
+                with_reentrancy_guard(&env, || {
+                    // Simulates a re-entrant call arriving mid-mutation.
+                    acquire(&env);
+                });
             });
         }));
         assert!(res.is_err());
@@ -151,9 +161,10 @@ mod tests {
     #[test]
     fn error_path_still_releases_the_lock() {
         let env = Env::default();
-        let out: Result<u32, u32> = with_reentrancy_guard(&env, || Err(1));
+        let out: Result<u32, u32> =
+            with_contract(&env, || with_reentrancy_guard(&env, || Err(1)));
         assert_eq!(out, Err(1));
-        assert!(!is_locked(&env));
+        assert!(!with_contract(&env, || is_locked(&env)));
     }
 
     #[test]

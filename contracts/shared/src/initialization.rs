@@ -41,12 +41,19 @@ mod tests {
         NotInitialized,
     }
 
+    /// Instance storage is only reachable from inside a deployed contract.
+    fn with_contract<T>(env: &Env, f: impl FnOnce() -> T) -> T {
+        let contract_id = env.register_contract(None, crate::TestContract);
+        env.as_contract(&contract_id, f)
+    }
+
     #[test]
     fn ok_when_the_key_is_present() {
         let env = Env::default();
-        env.storage().instance().set(&7u32, &true);
-        let result: Result<(), TestError> =
-            require_initialized(&env, &7u32, TestError::NotInitialized);
+        let result: Result<(), TestError> = with_contract(&env, || {
+            env.storage().instance().set(&7u32, &true);
+            require_initialized(&env, &7u32, TestError::NotInitialized)
+        });
         assert_eq!(result, Ok(()));
     }
 
@@ -54,7 +61,7 @@ mod tests {
     fn err_when_the_key_is_absent() {
         let env = Env::default();
         let result: Result<(), TestError> =
-            require_initialized(&env, &7u32, TestError::NotInitialized);
+            with_contract(&env, || require_initialized(&env, &7u32, TestError::NotInitialized));
         assert_eq!(result, Err(TestError::NotInitialized));
     }
 }
