@@ -21,3 +21,10 @@ shared = { path = "../shared", version = "0.1.0" }
 
 [dev-dependencies]
 soroban-sdk = { version = "21.0.0", features = ["testutils"] }
+
+# Gas / CPU benchmarks. `harness = false` so `cargo bench` runs it as a plain
+# binary on the pinned stable toolchain, like the other contract benchmarks.
+[[bench]]
+name = "escrow_benchmark"
+path = "benches/escrow_benchmark.rs"
+harness = false

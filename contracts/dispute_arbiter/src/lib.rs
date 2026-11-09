@@ -482,6 +482,8 @@ impl DisputeArbiter {
             .persistent()
             .get(&DataKey::Evidence(commission_id, index))
             .ok_or(DisputeError::NotFound)
+    }
+
     // ── Admin key rotation (closes #983) ─────────────────────────────────
     //
     // Two-step handover, with the state machine defined once in

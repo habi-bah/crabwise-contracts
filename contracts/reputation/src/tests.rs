@@ -649,7 +649,7 @@ fn test_queue_cap_rejects_new_reports() {
 
     let artist = Address::generate(&env);
     for i in 0..MAX_QUEUE_SIZE {
-        let id = Bytes::from_slice(&env, format!("q{i}").as_bytes());
+        let id = Bytes::from_slice(&env, std::format!("q{i}").as_bytes());
         client.submit_review(&id, &artist, &Address::generate(&env), &30u32, &make_string(&env, "ok"));
         client.report_review(&id, &Address::generate(&env), &ReportReason::Spam, &make_string(&env, "s"));
     }

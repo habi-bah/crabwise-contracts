@@ -366,7 +366,7 @@ impl Search {
             .unwrap_or(0);
         let scan_end = count.min(MAX_SCAN);
 
-        let mut matched: Vec<ArtistIndexEntry> = Vec::new();
+        let mut matched: Vec<ArtistIndexEntry> = Vec::new(&env);
         let mut i = 0u32;
         while i < scan_end {
             if let Some(entry) = env
@@ -387,7 +387,7 @@ impl Search {
         // Only the returned page's full listings are read from persistent
         // storage, so a page of k costs k reads, not n.
         let start = page.saturating_mul(page_size);
-        let mut page_results: Vec<ArtistListing> = Vec::new();
+        let mut page_results: Vec<ArtistListing> = Vec::new(&env);
         if start < total_matches {
             let end = core::cmp::min(start.saturating_add(page_size), total_matches);
             let mut j = start;

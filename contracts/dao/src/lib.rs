@@ -120,6 +120,12 @@ pub enum DataKey {
     TimelockLedgers,
     /// Voting period duration in ledgers.
     VotingPeriodLedgers,
+    /// Total supply of the governance token, recorded by the admin.
+    ///
+    /// SEP-41 (and therefore the Stellar Asset Contract) has no
+    /// `total_supply` method, so the DAO cannot read it from the token. It is
+    /// stored here and refreshed by [`DaoGovernance::set_total_supply`].
+    TotalSupply,
 }
 
 // ── Contract ──────────────────────────────────────────────────────────────────
@@ -167,6 +173,38 @@ impl DaoGovernance {
         env.storage().persistent().set(&DataKey::HistoryCount, &0u64);
 
         env.events().publish((symbol_short!("init"),), admin);
+    }
+
+    /// Record the governance token's total supply, used for quorum in
+    /// [`DaoGovernance::tally`].
+    ///
+    /// There is no way to read this from a SEP-41 token, so the admin supplies
+    /// it and refreshes it whenever the supply changes (for example after a
+    /// mint or burn). A vote cannot be tallied until it is set, so a missing
+    /// value fails closed instead of skipping the quorum check.
+    pub fn set_total_supply(env: Env, admin: Address, total_supply: i128) {
+        admin.require_auth();
+        let stored_admin: Address = env
+            .storage()
+            .persistent()
+            .get(&DataKey::Admin)
+            .expect("not initialized");
+        assert!(admin == stored_admin, "only admin can set total supply");
+        assert!(total_supply > 0, "total supply must be positive");
+
+        env.storage()
+            .persistent()
+            .set(&DataKey::TotalSupply, &total_supply);
+        env.events()
+            .publish((symbol_short!("supply"),), total_supply);
+    }
+
+    /// Total supply the DAO uses for quorum; `0` while unset.
+    pub fn get_total_supply(env: Env) -> i128 {
+        env.storage()
+            .persistent()
+            .get(&DataKey::TotalSupply)
+            .unwrap_or(0)
     }
 
     // ── Proposal Management ───────────────────────────────────────────────
@@ -346,15 +384,17 @@ impl DaoGovernance {
         let now = env.ledger().sequence();
         assert!(now > proposal.voting_end, "voting period not yet ended");
 
-        let gov_token: Address = env
+        // Check quorum: total votes cast must be ≥ QUORUM_BPS of total supply.
+        //
+        // The supply is recorded by the admin rather than read from the token:
+        // SEP-41 has no `total_supply`, so there is nothing to query. Tallying
+        // fails closed while it is unset rather than skipping the quorum check.
+        let total_supply: i128 = env
             .storage()
             .persistent()
-            .get(&DataKey::GovToken)
-            .expect("not initialized");
-        let tok = token::Client::new(&env, &gov_token);
-        let total_supply = tok.total_supply();
-
-        // Check quorum: total votes cast must be ≥ QUORUM_BPS of total supply.
+            .get(&DataKey::TotalSupply)
+            .unwrap_or(0);
+        assert!(total_supply > 0, "governance total supply not configured");
         let total_votes = proposal.votes_for + proposal.votes_against;
         let quorum = (total_supply * QUORUM_BPS as i128) / BPS_DENOMINATOR as i128;
 

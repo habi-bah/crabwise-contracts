@@ -82,7 +82,7 @@ fn main() {
     let contract_id = env.register_contract(None, CommissionAgreementContract);
     let client = CommissionAgreementContractClient::new(&env, &contract_id);
 
-    let mut rows: Vec<Row> = Vec::new();
+    let mut rows: std::vec::Vec<Row> = std::vec::Vec::new();
 
     // create_agreement — a fresh commission per call. NOTE: `create_agreement`
     // currently requires `DataKey::RateLimiter` to be configured, and that key

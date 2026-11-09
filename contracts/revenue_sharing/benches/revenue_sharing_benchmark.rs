@@ -225,8 +225,8 @@ fn advance_ledgers(env: &Env, by: u32) {
 /// `env.events().all()` returns the test host's entire event log rather than
 /// just the last invocation, so a raw length would count every call made so far
 /// on this `Env`. Taking the difference is what makes the figure an event count.
-fn events_emitted_since(before: usize, env: &Env) -> u32 {
-    (env.events().all().len() - before) as u32
+fn events_emitted_since(before: u32, env: &Env) -> u32 {
+    env.events().all().len() - before
 }
 
 // ── Benchmarks ───────────────────────────────────────────────────────────────
@@ -380,7 +380,7 @@ fn main() {
         return;
     }
 
-    let mut failures: std::vec::Vec<String> = std::vec::Vec::new();
+    let mut failures: std::vec::Vec<std::string::String> = std::vec::Vec::new();
     for m in &measurements {
         if m.events > m.budget.max_events {
             failures.push(format!(

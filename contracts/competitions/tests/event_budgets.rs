@@ -100,7 +100,7 @@ fn create_competition_emits_one_event() {
                 &PRIZE_POOL,
                 &rules(&f.env),
             )
-            .unwrap();
+            ;
         }),
         1
     );
@@ -120,14 +120,14 @@ fn submit_emits_one_event() {
             &PRIZE_POOL,
             &rules(&f.env),
         )
-        .unwrap();
+        ;
     let entrant = Address::generate(&f.env);
 
     assert_eq!(
         events_emitted_by(&f.env, || {
             f.client
                 .submit(&id, &entrant, &String::from_str(&f.env, "ipfs://entry"))
-                .unwrap();
+                ;
         }),
         1
     );
@@ -147,13 +147,13 @@ fn vote_emits_one_event() {
             &PRIZE_POOL,
             &rules(&f.env),
         )
-        .unwrap();
+        ;
     let entrant = Address::generate(&f.env);
     let voter = Address::generate(&f.env);
     f.client
         .submit(&id, &entrant, &String::from_str(&f.env, "ipfs://entry"))
-        .unwrap();
-    f.client.set_reputation(&voter, &30).unwrap();
+        ;
+    f.client.set_reputation(&voter, &30);
 
     // Advance past submission window into voting window.
     f.env
@@ -162,7 +162,7 @@ fn vote_emits_one_event() {
 
     assert_eq!(
         events_emitted_by(&f.env, || {
-            f.client.vote(&id, &voter, &entrant).unwrap();
+            f.client.vote(&id, &voter, &entrant);
         }),
         1
     );
@@ -182,17 +182,17 @@ fn finalize_emits_one_event() {
             &PRIZE_POOL,
             &rules(&f.env),
         )
-        .unwrap();
+        ;
     let entrant = Address::generate(&f.env);
     let voter = Address::generate(&f.env);
     f.client
         .submit(&id, &entrant, &String::from_str(&f.env, "ipfs://entry"))
-        .unwrap();
-    f.client.set_reputation(&voter, &30).unwrap();
+        ;
+    f.client.set_reputation(&voter, &30);
     f.env
         .ledger()
         .with_mut(|l| l.sequence_number += SUBMISSION_LEDGERS + 1);
-    f.client.vote(&id, &voter, &entrant).unwrap();
+    f.client.vote(&id, &voter, &entrant);
     // Advance past the voting window.
     f.env
         .ledger()
@@ -200,7 +200,7 @@ fn finalize_emits_one_event() {
 
     assert_eq!(
         events_emitted_by(&f.env, || {
-            f.client.finalize(&id).unwrap();
+            f.client.finalize(&id);
         }),
         1
     );
@@ -220,25 +220,25 @@ fn distribute_prizes_emits_one_event() {
             &PRIZE_POOL,
             &rules(&f.env),
         )
-        .unwrap();
+        ;
     let entrant = Address::generate(&f.env);
     let voter = Address::generate(&f.env);
     f.client
         .submit(&id, &entrant, &String::from_str(&f.env, "ipfs://entry"))
-        .unwrap();
-    f.client.set_reputation(&voter, &30).unwrap();
+        ;
+    f.client.set_reputation(&voter, &30);
     f.env
         .ledger()
         .with_mut(|l| l.sequence_number += SUBMISSION_LEDGERS + 1);
-    f.client.vote(&id, &voter, &entrant).unwrap();
+    f.client.vote(&id, &voter, &entrant);
     f.env
         .ledger()
         .with_mut(|l| l.sequence_number += VOTING_LEDGERS + 1);
-    f.client.finalize(&id).unwrap();
+    f.client.finalize(&id);
 
     assert_eq!(
         events_emitted_by(&f.env, || {
-            f.client.distribute_prizes(&id).unwrap();
+            f.client.distribute_prizes(&id);
         }),
         1
     );

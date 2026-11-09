@@ -366,6 +366,8 @@ fn scan_beyond_max_scan_is_reported_as_truncated() {
     let page = client.search(&empty_filters(&env), &SortBy::PriceAsc, &0, &10);
     assert_eq!(page.scanned, MAX_SCAN, "scan cost is bounded by MAX_SCAN");
     assert!(page.truncated, "partial results must be reported explicitly");
+}
+
 /// Tests for the bounded top-k selection (issue #992).
 /// These verify that `select_page` (used by `search`) produces results
 /// identical to the previous full-sort + window approach.

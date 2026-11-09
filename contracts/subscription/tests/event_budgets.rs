@@ -51,7 +51,7 @@ fn setup<'a>() -> Fixture<'a> {
 
     let contract_id = env.register_contract(None, SubscriptionContract);
     let client = SubscriptionContractClient::new(&env, &contract_id);
-    client.initialize(&admin, &token, &GRACE, &HISTORY_LIMIT).unwrap();
+    client.initialize(&admin, &token, &GRACE, &HISTORY_LIMIT);
 
     // Create a default tier.
     let benefits: SorobanVec<Symbol> = SorobanVec::new(&env);
@@ -63,7 +63,7 @@ fn setup<'a>() -> Fixture<'a> {
             &PERIOD,
             &benefits,
         )
-        .unwrap();
+        ;
 
     Fixture {
         env,
@@ -77,7 +77,7 @@ fn new_subscriber(f: &Fixture) -> Address {
     let sub = Address::generate(&f.env);
     // Pre-fund the subscriber's credit so `subscribe` does not fail.
     token::StellarAssetClient::new(&f.env, &f.token).mint(&sub, &1_000_000);
-    f.client.deposit(&sub, &1_000_000).unwrap();
+    f.client.deposit(&sub, &1_000_000);
     sub
 }
 
@@ -100,7 +100,7 @@ fn initialize_emits_one_event() {
         events_emitted_by(&env, || {
             client
                 .initialize(&admin, &token, &GRACE, &HISTORY_LIMIT)
-                .unwrap();
+                ;
         }),
         1
     );
@@ -121,7 +121,7 @@ fn create_tier_emits_one_event() {
                     &PERIOD,
                     &benefits,
                 )
-                .unwrap();
+                ;
         }),
         1
     );
@@ -134,7 +134,7 @@ fn subscribe_emits_one_event() {
     let sub = new_subscriber(&f);
     assert_eq!(
         events_emitted_by(&f.env, || {
-            f.client.subscribe(&sub, &TIER_ID, &false).unwrap();
+            f.client.subscribe(&sub, &TIER_ID, &false);
         }),
         1
     );
@@ -145,13 +145,13 @@ fn subscribe_emits_one_event() {
 fn renew_emits_one_event() {
     let f = setup();
     let sub = new_subscriber(&f);
-    f.client.subscribe(&sub, &TIER_ID, &false).unwrap();
+    f.client.subscribe(&sub, &TIER_ID, &false);
     // Advance past the current period to trigger a renewal.
     f.env.ledger().with_mut(|l| l.sequence_number += PERIOD + 1);
 
     assert_eq!(
         events_emitted_by(&f.env, || {
-            f.client.renew(&sub).unwrap();
+            f.client.renew(&sub);
         }),
         1
     );
@@ -162,10 +162,10 @@ fn renew_emits_one_event() {
 fn cancel_emits_one_event() {
     let f = setup();
     let sub = new_subscriber(&f);
-    f.client.subscribe(&sub, &TIER_ID, &false).unwrap();
+    f.client.subscribe(&sub, &TIER_ID, &false);
     assert_eq!(
         events_emitted_by(&f.env, || {
-            f.client.cancel(&sub).unwrap();
+            f.client.cancel(&sub);
         }),
         1
     );
@@ -176,14 +176,14 @@ fn cancel_emits_one_event() {
 fn lapse_emits_one_event() {
     let f = setup();
     let sub = new_subscriber(&f);
-    f.client.subscribe(&sub, &TIER_ID, &false).unwrap();
+    f.client.subscribe(&sub, &TIER_ID, &false);
     // Advance past the period end (and grace) so the subscription can be lapsed.
     f.env
         .ledger()
         .with_mut(|l| l.sequence_number += PERIOD + GRACE + 1);
     assert_eq!(
         events_emitted_by(&f.env, || {
-            f.client.lapse(&sub).unwrap();
+            f.client.lapse(&sub);
         }),
         1
     );
