@@ -33,3 +33,16 @@ pub use circuit_breaker::{
 };
 pub mod validation;
 pub mod version;
+
+/// Minimal contract used by the unit tests in this crate.
+///
+/// Instance storage is only reachable from inside a deployed contract, and the
+/// host requires the instance ledger entry to already exist, so [`tests`] run
+/// their bodies against this contract instead of a bare generated address.
+#[cfg(test)]
+#[soroban_sdk::contract]
+pub struct TestContract;
+
+#[cfg(test)]
+#[soroban_sdk::contractimpl]
+impl TestContract {}
