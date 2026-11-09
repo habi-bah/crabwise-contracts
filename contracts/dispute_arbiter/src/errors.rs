@@ -59,5 +59,8 @@ pub fn get_suggestion(error: DisputeError) -> Symbol {
         DisputeError::InvalidShareBps => symbol_short!("BAD_BPS"),
         DisputeError::ArithmeticOverflow => symbol_short!("OVERFL"),
         DisputeError::NoteTooLong => symbol_short!("LONG_NOTE"),
+        DisputeError::EvidenceWindowClosed => symbol_short!("EVID_CLSD"),
+        DisputeError::EvidenceTooLong => symbol_short!("EVID_LONG"),
+        DisputeError::InvalidTtl => symbol_short!("BAD_TTL"),
     }
 }
