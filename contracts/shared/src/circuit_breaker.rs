@@ -290,7 +290,8 @@ pub fn maybe_auto_halt(env: &Env) -> bool {
 /// Delegates to [`crate::pause::pause`]. Any previously scheduled recovery
 /// is cleared.
 pub fn halt(env: &Env, admin: &Address) -> Result<(), CircuitBreakerError> {
-    admin.require_auth();
+    // `pause::pause` authenticates `admin`; requiring it here as well would
+    // record the same authorization twice in one invocation.
     if is_halted(env) {
         return Err(CircuitBreakerError::AlreadyHalted);
     }
@@ -311,7 +312,7 @@ pub fn halt(env: &Env, admin: &Address) -> Result<(), CircuitBreakerError> {
 /// Delegates to [`crate::pause::try_unpause`]. Respects any time-locked
 /// recovery that was scheduled via [`crate::pause::schedule_recovery`].
 pub fn resume(env: &Env, admin: &Address) -> Result<(), CircuitBreakerError> {
-    admin.require_auth();
+    // `pause::try_unpause` authenticates `admin`.
     if !is_halted(env) {
         return Err(CircuitBreakerError::NotHalted);
     }
@@ -380,7 +381,7 @@ pub fn schedule_recovery(
     admin: &Address,
     delay_ledgers: u32,
 ) -> Result<u32, CircuitBreakerError> {
-    admin.require_auth();
+    // `pause::schedule_recovery` authenticates `admin`.
     if !is_halted(env) {
         return Err(CircuitBreakerError::NotHalted);
     }
@@ -394,7 +395,7 @@ pub fn schedule_recovery(
 
 /// Cancel a previously scheduled recovery (admin only). The contract stays halted.
 pub fn cancel_recovery(env: &Env, admin: &Address) -> Result<(), CircuitBreakerError> {
-    admin.require_auth();
+    // `pause::cancel_recovery` authenticates `admin`.
     pause::cancel_recovery(env, admin).map_err(|e| match e {
         pause::PauseError::RecoveryNotScheduled => CircuitBreakerError::NotHalted,
         _ => CircuitBreakerError::RecoveryPending,
