@@ -108,10 +108,9 @@ impl Config {
             }
             Some(_) => Ok(()),
             None => {
-                if matches!(
-                    self.soroban_network_passphrase.as_str(),
-                    TESTNET.network_passphrase | MAINNET.network_passphrase
-                ) {
+                if self.soroban_network_passphrase == TESTNET.network_passphrase
+                    || self.soroban_network_passphrase == MAINNET.network_passphrase
+                {
                     Ok(())
                 } else {
                     Err(ConfigError::UnknownNetwork(
@@ -190,6 +189,19 @@ mod tests {
             cfg.validate().unwrap_err(),
             ConfigError::InvalidUrl(_, _)
         ));
+    }
+
+    #[test]
+    fn validate_accepts_a_known_passphrase_for_an_unknown_network() {
+        // An unrecognised network name is tolerated as long as the passphrase
+        // is one of the two known networks.
+        let mut cfg = Config::from_network(&TESTNET, "SDUMMY");
+        cfg.stellar_network = "futurenet".to_string();
+        assert!(cfg.validate().is_ok());
+
+        let mut cfg = Config::from_network(&MAINNET, "SDUMMY");
+        cfg.stellar_network = "futurenet".to_string();
+        assert!(cfg.validate().is_ok());
     }
 
     #[test]
