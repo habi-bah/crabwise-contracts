@@ -410,10 +410,19 @@ mod tests {
     use soroban_sdk::testutils::Address as _;
     use soroban_sdk::testutils::Ledger as _;
 
-    fn setup() -> Env {
+    /// One registered contract per test: instance storage is only reachable
+    /// from inside a deployed contract in SDK 21.
+    fn setup() -> (Env, Address) {
         let env = Env::default();
         env.mock_all_auths();
-        env
+        let contract_id = env.register_contract(None, crate::TestContract);
+        (env, contract_id)
+    }
+
+    /// Run one call in its own invocation frame. The host authorizes an
+    /// address at most once per frame, so repeated admin calls need this.
+    fn on<T>(env: &Env, contract_id: &Address, f: impl FnOnce() -> T) -> T {
+        env.as_contract(contract_id, f)
     }
 
     #[test]
@@ -453,132 +462,156 @@ mod tests {
 
     #[test]
     fn is_halted_reflects_pause_flag() {
-        let env = setup();
-        assert!(!is_halted(&env));
+        let (env, id) = setup();
+        assert!(!on(&env, &id, || is_halted(&env)));
 
         let admin = Address::generate(&env);
-        pause::pause(&env, &admin);
-        assert!(is_halted(&env));
+        on(&env, &id, || pause::pause(&env, &admin));
+        assert!(on(&env, &id, || is_halted(&env)));
 
-        pause::try_unpause(&env, &admin).unwrap();
-        assert!(!is_halted(&env));
+        on(&env, &id, || pause::try_unpause(&env, &admin).unwrap());
+        assert!(!on(&env, &id, || is_halted(&env)));
     }
 
     #[test]
     fn require_not_halted_allows_when_running() {
-        let env = setup();
-        assert!(require_not_halted(&env).is_ok());
+        let (env, id) = setup();
+        assert!(on(&env, &id, || require_not_halted(&env).is_ok()));
     }
 
     #[test]
     fn require_not_halted_rejects_when_halted() {
-        let env = setup();
+        let (env, id) = setup();
         let admin = Address::generate(&env);
-        pause::pause(&env, &admin);
-        let err = require_not_halted(&env).unwrap_err();
+        on(&env, &id, || pause::pause(&env, &admin));
+        let err = on(&env, &id, || require_not_halted(&env).unwrap_err());
         assert_eq!(err, CircuitBreakerError::Halted);
     }
 
     #[test]
     fn halt_and_resume_lifecycle() {
-        let env = setup();
+        let (env, id) = setup();
         let admin = Address::generate(&env);
 
-        set_config(&env, &CircuitBreakerConfig {
-            admin: admin.clone(),
-            halt_error_bps: DEFAULT_HALT_ERROR_BPS,
+        on(&env, &id, || {
+            set_config(&env, &CircuitBreakerConfig {
+                admin: admin.clone(),
+                halt_error_bps: DEFAULT_HALT_ERROR_BPS,
+            })
         });
 
-        assert!(!is_halted(&env));
-        halt(&env, &admin).unwrap();
-        assert!(is_halted(&env));
+        assert!(!on(&env, &id, || is_halted(&env)));
+        on(&env, &id, || halt(&env, &admin).unwrap());
+        assert!(on(&env, &id, || is_halted(&env)));
 
         // Halting again should fail
-        let err = halt(&env, &admin).unwrap_err();
+        let err = on(&env, &id, || halt(&env, &admin).unwrap_err());
         assert_eq!(err, CircuitBreakerError::AlreadyHalted);
 
         // Resume
-        resume(&env, &admin).unwrap();
-        assert!(!is_halted(&env));
+        on(&env, &id, || resume(&env, &admin).unwrap());
+        assert!(!on(&env, &id, || is_halted(&env)));
 
         // Resuming again should fail
-        let err = resume(&env, &admin).unwrap_err();
+        let err = on(&env, &id, || resume(&env, &admin).unwrap_err());
         assert_eq!(err, CircuitBreakerError::NotHalted);
     }
 
     #[test]
     fn auto_halt_triggers_when_threshold_exceeded() {
-        let env = setup();
+        let (env, id) = setup();
         let admin = Address::generate(&env);
 
-        set_config(&env, &CircuitBreakerConfig {
-            admin: admin.clone(),
-            halt_error_bps: 500, // 5%
+        on(&env, &id, || {
+            set_config(&env, &CircuitBreakerConfig {
+                admin: admin.clone(),
+                halt_error_bps: 500, // 5%
+            })
         });
 
         // Record 5 errors out of 10 calls (50% error rate, well above 5%)
-        for _ in 0..5 {
-            record_failure(&env);
-        }
-        for _ in 0..5 {
-            record_success(&env);
-        }
+        on(&env, &id, || {
+            for _ in 0..5 {
+                record_failure(&env);
+            }
+            for _ in 0..5 {
+                record_success(&env);
+            }
+        });
 
-        assert!(is_halted(&env), "should auto-halt when error rate exceeds threshold");
-        assert_eq!(last_halt_ledger(&env), env.ledger().sequence());
+        assert!(
+            on(&env, &id, || is_halted(&env)),
+            "should auto-halt when error rate exceeds threshold"
+        );
+        assert_eq!(
+            on(&env, &id, || last_halt_ledger(&env)),
+            env.ledger().sequence()
+        );
     }
 
     #[test]
     fn auto_halt_does_not_trigger_below_threshold() {
-        let env = setup();
+        let (env, id) = setup();
         let admin = Address::generate(&env);
 
-        set_config(&env, &CircuitBreakerConfig {
-            admin: admin.clone(),
-            halt_error_bps: 500, // 5%
+        on(&env, &id, || {
+            set_config(&env, &CircuitBreakerConfig {
+                admin: admin.clone(),
+                halt_error_bps: 500, // 5%
+            })
         });
 
-        for _ in 0..95 {
-            record_success(&env);
-        }
-        for _ in 0..5 {
-            record_failure(&env);
-        }
+        on(&env, &id, || {
+            for _ in 0..95 {
+                record_success(&env);
+            }
+            for _ in 0..5 {
+                record_failure(&env);
+            }
+        });
         // 5% exactly — not above threshold, should not halt
-        assert!(!is_halted(&env));
+        assert!(!on(&env, &id, || is_halted(&env)));
     }
 
     #[test]
     fn auto_halt_does_not_trigger_with_few_samples() {
-        let env = setup();
+        let (env, id) = setup();
         let admin = Address::generate(&env);
 
-        set_config(&env, &CircuitBreakerConfig {
-            admin: admin.clone(),
-            halt_error_bps: 100, // 1% threshold
+        on(&env, &id, || {
+            set_config(&env, &CircuitBreakerConfig {
+                admin: admin.clone(),
+                halt_error_bps: 100, // 1% threshold
+            })
         });
 
         // Only 2 samples — below MIN_SAMPLE_FOR_HALT
-        record_failure(&env);
-        record_failure(&env);
-        assert!(!is_halted(&env));
+        on(&env, &id, || {
+            record_failure(&env);
+            record_failure(&env);
+        });
+        assert!(!on(&env, &id, || is_halted(&env)));
     }
 
     #[test]
     fn get_state_reports_correct_values() {
-        let env = setup();
+        let (env, id) = setup();
         let admin = Address::generate(&env);
 
-        set_config(&env, &CircuitBreakerConfig {
-            admin: admin.clone(),
-            halt_error_bps: 500,
+        on(&env, &id, || {
+            set_config(&env, &CircuitBreakerConfig {
+                admin: admin.clone(),
+                halt_error_bps: 500,
+            })
         });
 
-        record_success(&env);
-        record_success(&env);
-        record_failure(&env);
+        on(&env, &id, || {
+            record_success(&env);
+            record_success(&env);
+            record_failure(&env);
+        });
 
-        let state = get_state(&env);
+        let state = on(&env, &id, || get_state(&env));
         assert!(!state.halted);
         assert_eq!(state.total_calls, 3);
         assert_eq!(state.ok_count, 2);
@@ -588,31 +621,33 @@ mod tests {
 
     #[test]
     fn time_locked_recovery_workflow() {
-        let env = setup();
+        let (env, id) = setup();
         let admin = Address::generate(&env);
 
-        set_config(&env, &CircuitBreakerConfig {
-            admin: admin.clone(),
-            halt_error_bps: 500,
+        on(&env, &id, || {
+            set_config(&env, &CircuitBreakerConfig {
+                admin: admin.clone(),
+                halt_error_bps: 500,
+            })
         });
 
-        halt(&env, &admin).unwrap();
-        assert!(is_halted(&env));
+        on(&env, &id, || halt(&env, &admin).unwrap());
+        assert!(on(&env, &id, || is_halted(&env)));
 
         // Schedule a 10-ledger recovery
-        let eta = schedule_recovery(&env, &admin, 10).unwrap();
+        let eta = on(&env, &id, || schedule_recovery(&env, &admin, 10).unwrap());
         assert_eq!(eta, env.ledger().sequence() + 10);
 
         // Resume immediately should fail (recovery pending)
-        let err = resume(&env, &admin).unwrap_err();
+        let err = on(&env, &id, || resume(&env, &admin).unwrap_err());
         assert_eq!(err, CircuitBreakerError::RecoveryPending);
 
         // Advance past the lock
         env.ledger().with_mut(|l| l.sequence_number += 11);
 
         // Now resume should work
-        resume(&env, &admin).unwrap();
-        assert!(!is_halted(&env));
+        on(&env, &id, || resume(&env, &admin).unwrap());
+        assert!(!on(&env, &id, || is_halted(&env)));
     }
 
     #[test]
