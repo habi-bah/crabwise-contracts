@@ -179,6 +179,7 @@ impl ReputationContract {
             .unwrap_or(0u32);
         if queue_size_precheck >= MAX_QUEUE_SIZE {
             return Err(ReputationError::QueueFull);
+        }
         if review.status != ReviewStatus::Active && review.status != ReviewStatus::Cleared {
             return Err(ReputationError::InvalidStatus);
         }

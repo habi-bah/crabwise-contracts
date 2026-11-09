@@ -65,5 +65,9 @@ pub fn get_suggestion(error: ReputationError) -> Symbol {
         ReputationError::ArithmeticOverflow => symbol_short!("OVERFL"),
         ReputationError::DuplicateReview => symbol_short!("DUP_REV"),
         ReputationError::CommentTooLong => symbol_short!("TOO_LONG"),
+        ReputationError::AppealWindowClosed => symbol_short!("WIN_CLSD"),
+        ReputationError::QueueFull => symbol_short!("QUEUE_FUL"),
+        ReputationError::ReportLimitReached => symbol_short!("RPT_LIMIT"),
+        ReputationError::InvalidAppealWindow => symbol_short!("BAD_WINDW"),
     }
 }

@@ -57,7 +57,7 @@ fn setup<'a>() -> Fixture<'a> {
 
     let contract_id = env.register_contract(None, ReputationContract);
     let client = ReputationContractClient::new(&env, &contract_id);
-    client.initialize(&admin).unwrap();
+    client.initialize(&admin);
 
     Fixture {
         env,
@@ -78,7 +78,7 @@ fn submit_review_emits_one_event() {
         events_emitted_by(&f.env, || {
             f.client
                 .submit_review(&id, &f.artist, &f.reviewer, &85, &note(&f.env))
-                .unwrap();
+                ;
         }),
         1
     );
@@ -91,7 +91,7 @@ fn report_review_emits_one_event() {
     let id = review_id(&f.env, "budget-report");
     f.client
         .submit_review(&id, &f.artist, &f.reviewer, &85, &note(&f.env))
-        .unwrap();
+        ;
     assert_eq!(
         events_emitted_by(&f.env, || {
             f.client
@@ -101,7 +101,7 @@ fn report_review_emits_one_event() {
                     &ReportReason::Spam,
                     &note(&f.env),
                 )
-                .unwrap();
+                ;
         }),
         1
     );
@@ -114,15 +114,15 @@ fn moderate_review_emits_one_event() {
     let id = review_id(&f.env, "budget-moderate");
     f.client
         .submit_review(&id, &f.artist, &f.reviewer, &85, &note(&f.env))
-        .unwrap();
+        ;
     f.client
         .report_review(&id, &f.reporter, &ReportReason::Spam, &note(&f.env))
-        .unwrap();
+        ;
     assert_eq!(
         events_emitted_by(&f.env, || {
             f.client
                 .moderate_review(&id, &ReviewStatus::Cleared, &note(&f.env))
-                .unwrap();
+                ;
         }),
         1
     );
@@ -135,18 +135,18 @@ fn file_appeal_emits_one_event() {
     let id = review_id(&f.env, "budget-appeal");
     f.client
         .submit_review(&id, &f.artist, &f.reviewer, &85, &note(&f.env))
-        .unwrap();
+        ;
     f.client
         .report_review(&id, &f.reporter, &ReportReason::Spam, &note(&f.env))
-        .unwrap();
+        ;
     f.client
         .moderate_review(&id, &ReviewStatus::Removed, &note(&f.env))
-        .unwrap();
+        ;
     assert_eq!(
         events_emitted_by(&f.env, || {
             f.client
                 .file_appeal(&id, &f.artist, &note(&f.env))
-                .unwrap();
+                ;
         }),
         1
     );
@@ -159,21 +159,21 @@ fn resolve_appeal_emits_one_event() {
     let id = review_id(&f.env, "budget-resolve");
     f.client
         .submit_review(&id, &f.artist, &f.reviewer, &85, &note(&f.env))
-        .unwrap();
+        ;
     f.client
         .report_review(&id, &f.reporter, &ReportReason::Spam, &note(&f.env))
-        .unwrap();
+        ;
     f.client
         .moderate_review(&id, &ReviewStatus::Removed, &note(&f.env))
-        .unwrap();
+        ;
     f.client
         .file_appeal(&id, &f.artist, &note(&f.env))
-        .unwrap();
+        ;
     assert_eq!(
         events_emitted_by(&f.env, || {
             f.client
                 .resolve_appeal(&id, &AppealStatus::Upheld)
-                .unwrap();
+                ;
         }),
         1
     );
