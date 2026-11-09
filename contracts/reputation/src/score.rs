@@ -29,12 +29,20 @@ pub const PRIOR_RATING_X10: u32 = 30;
 /// real reviews before its own average dominates the displayed score.
 pub const PRIOR_WEIGHT: u32 = 3;
 
+/// Highest rating the contract accepts, in tenths: `5.0` (`submit_review`
+/// validates `10..=50`).
+pub const MAX_RATING_X10: u32 = 50;
+
 /// Mean rating in tenths over the active reviews; `0` when there are none.
+///
+/// Clamped to [`MAX_RATING_X10`]: `rating_sum` and `active_reviews` are stored
+/// separately, and removing a review lowers the count without necessarily
+/// rewriting the sum, so the quotient can drift above the ceiling.
 pub fn average_rating_x10(rating_sum: u32, active_reviews: u32) -> u32 {
     if active_reviews == 0 {
         0
     } else {
-        rating_sum / active_reviews
+        (rating_sum / active_reviews).min(MAX_RATING_X10)
     }
 }
 
@@ -46,7 +54,8 @@ pub fn average_rating_x10(rating_sum: u32, active_reviews: u32) -> u32 {
 pub fn weighted_score_x10(rating_sum: u32, active_reviews: u32) -> u32 {
     let numerator = rating_sum.saturating_add(PRIOR_RATING_X10.saturating_mul(PRIOR_WEIGHT));
     let denominator = active_reviews.saturating_add(PRIOR_WEIGHT);
-    numerator / denominator
+    // Same drift as `average_rating_x10`; never report above 5.0.
+    (numerator / denominator).min(MAX_RATING_X10)
 }
 
 /// Project a stored aggregate into the client-facing score.
