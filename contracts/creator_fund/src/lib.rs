@@ -479,8 +479,6 @@ impl CreatorFund {
         limit: u32,
     ) -> (Vec<GrowthPoint>, shared::pagination::PageInfo) {
         let all: Vec<GrowthPoint> = env
-    ) -> (Vec<GrowthPoint>, shared::PageInfo) {
-        let growth: Vec<GrowthPoint> = env
             .storage()
             .persistent()
             .get(&DataKey::Growth(fund_id))
