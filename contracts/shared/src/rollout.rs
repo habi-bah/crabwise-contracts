@@ -525,17 +525,23 @@ mod tests {
     #[test]
     fn one_past_the_cap_is_rejected() {
         let env = Env::default();
-        with_contract(&env, || {
-            for i in 0..MAX_FEATURE_FLAGS {
-                set_feature_flag(&env, &flag(&env, i), true);
-            }
-            let res = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-                set_feature_flag(&env, &flag(&env, MAX_FEATURE_FLAGS), true);
-            }));
-            assert!(res.is_err(), "flag {} must be refused", MAX_FEATURE_FLAGS);
-            // The refused flag was not recorded.
-            assert_eq!(get_state(&env).flag_count, MAX_FEATURE_FLAGS);
-        });
+        let id = env.register_contract(None, crate::TestContract);
+        for i in 0..MAX_FEATURE_FLAGS {
+            env.as_contract(&id, || set_feature_flag(&env, &flag(&env, i), true));
+        }
+        // `catch_unwind` wraps the whole frame: the host re-raises a contract
+        // error when the frame exits.
+        let res = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            env.as_contract(&id, || {
+                set_feature_flag(&env, &flag(&env, MAX_FEATURE_FLAGS), true)
+            });
+        }));
+        assert!(res.is_err(), "flag {} must be refused", MAX_FEATURE_FLAGS);
+        // The refused flag was not recorded.
+        assert_eq!(
+            env.as_contract(&id, || get_state(&env).flag_count),
+            MAX_FEATURE_FLAGS
+        );
     }
 
     #[test]
@@ -555,19 +561,20 @@ mod tests {
     #[test]
     fn a_lowered_cap_blocks_new_flags_but_leaves_existing_ones_working() {
         let env = Env::default();
-        with_contract(&env, || {
+        let id = env.register_contract(None, crate::TestContract);
+        env.as_contract(&id, || {
             for i in 0..4 {
                 set_feature_flag(&env, &flag(&env, i), true);
             }
             set_flag_cap(&env, 2).unwrap();
             // Existing flags keep their value...
             assert!(is_feature_enabled(&env, &flag(&env, 1)));
-            // ...but a new one is refused.
-            let res = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-                set_feature_flag(&env, &flag(&env, 9), true);
-            }));
-            assert!(res.is_err());
         });
+        // ...but a new one is refused.
+        let res = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            env.as_contract(&id, || set_feature_flag(&env, &flag(&env, 9), true));
+        }));
+        assert!(res.is_err());
     }
 
     #[test]
