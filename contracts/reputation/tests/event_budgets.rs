@@ -77,7 +77,7 @@ fn submit_review_emits_one_event() {
     assert_eq!(
         events_emitted_by(&f.env, || {
             f.client
-                .submit_review(&id, &f.artist, &f.reviewer, &85, &note(&f.env))
+                .submit_review(&id, &f.artist, &f.reviewer, &45, &note(&f.env))
                 ;
         }),
         1
@@ -90,7 +90,7 @@ fn report_review_emits_one_event() {
     let f = setup();
     let id = review_id(&f.env, "budget-report");
     f.client
-        .submit_review(&id, &f.artist, &f.reviewer, &85, &note(&f.env))
+        .submit_review(&id, &f.artist, &f.reviewer, &45, &note(&f.env))
         ;
     assert_eq!(
         events_emitted_by(&f.env, || {
@@ -113,7 +113,7 @@ fn moderate_review_emits_one_event() {
     let f = setup();
     let id = review_id(&f.env, "budget-moderate");
     f.client
-        .submit_review(&id, &f.artist, &f.reviewer, &85, &note(&f.env))
+        .submit_review(&id, &f.artist, &f.reviewer, &45, &note(&f.env))
         ;
     f.client
         .report_review(&id, &f.reporter, &ReportReason::Spam, &note(&f.env))
@@ -134,7 +134,7 @@ fn file_appeal_emits_one_event() {
     let f = setup();
     let id = review_id(&f.env, "budget-appeal");
     f.client
-        .submit_review(&id, &f.artist, &f.reviewer, &85, &note(&f.env))
+        .submit_review(&id, &f.artist, &f.reviewer, &45, &note(&f.env))
         ;
     f.client
         .report_review(&id, &f.reporter, &ReportReason::Spam, &note(&f.env))
@@ -158,7 +158,7 @@ fn resolve_appeal_emits_one_event() {
     let f = setup();
     let id = review_id(&f.env, "budget-resolve");
     f.client
-        .submit_review(&id, &f.artist, &f.reviewer, &85, &note(&f.env))
+        .submit_review(&id, &f.artist, &f.reviewer, &45, &note(&f.env))
         ;
     f.client
         .report_review(&id, &f.reporter, &ReportReason::Spam, &note(&f.env))
