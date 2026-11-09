@@ -26,7 +26,7 @@ const MAX_ROYALTY_BPS: u32 = 3000;
 
 /// Current state of an NFT certificate.
 #[contracttype]
-#[derive(Clone, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum NftStatus {
     Active,
     Burned,
