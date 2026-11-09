@@ -213,110 +213,117 @@ mod tests {
         (env, admin)
     }
 
-    /// The shared layer uses instance storage, which is only reachable from
-    /// inside a deployed contract, so every body runs in one.
-    fn with_contract<T>(env: &Env, f: impl FnOnce() -> T) -> T {
-        let contract_id = env.register_contract(None, crate::TestContract);
-        env.as_contract(&contract_id, f)
+    /// Run one call inside a deployed contract.
+    ///
+    /// Instance storage is only reachable from inside a contract, and the host
+    /// authorizes an address at most once per invocation frame, so each state
+    /// transition gets its own frame against the same contract id.
+    fn on<T>(env: &Env, contract_id: &Address, f: impl FnOnce() -> T) -> T {
+        env.as_contract(contract_id, f)
     }
 
     #[test]
     fn propose_then_accept_moves_the_pending_admin() {
         let (env, admin) = funded_env();
+        let contract_id = env.register_contract(None, crate::TestContract);
         let successor = Address::generate(&env);
 
-        with_contract(&env, || {
-            propose(&env, &admin, &successor).unwrap();
-            assert_eq!(pending_admin(&env), Some(successor.clone()));
+        on(&env, &contract_id, || propose(&env, &admin, &successor).unwrap());
+        assert_eq!(
+            on(&env, &contract_id, || pending_admin(&env)),
+            Some(successor.clone())
+        );
 
-            accept(&env, &admin, &successor).unwrap();
-            // The shared layer clears its pending key; the contract installs the
-            // active admin, so nothing is left dangling here.
-            assert_eq!(pending_admin(&env), None);
-        });
+        on(&env, &contract_id, || accept(&env, &admin, &successor).unwrap());
+        // The shared layer clears its pending key; the contract installs the
+        // active admin, so nothing is left dangling here.
+        assert_eq!(on(&env, &contract_id, || pending_admin(&env)), None);
     }
 
     #[test]
     fn unaccepted_transfer_leaves_pending_set() {
         let (env, admin) = funded_env();
+        let contract_id = env.register_contract(None, crate::TestContract);
         let successor = Address::generate(&env);
 
-        with_contract(&env, || {
-            propose(&env, &admin, &successor).unwrap();
-            // No accept yet: the successor is still only pending.
-            assert_eq!(pending_admin(&env), Some(successor));
-        });
+        on(&env, &contract_id, || propose(&env, &admin, &successor).unwrap());
+        // No accept yet: the successor is still only pending.
+        assert_eq!(
+            on(&env, &contract_id, || pending_admin(&env)),
+            Some(successor)
+        );
     }
 
     #[test]
     fn cancel_leaves_no_pending_and_original_admin_intact() {
         let (env, admin) = funded_env();
+        let contract_id = env.register_contract(None, crate::TestContract);
         let successor = Address::generate(&env);
 
-        with_contract(&env, || {
-            propose(&env, &admin, &successor).unwrap();
-            cancel(&env, &admin).unwrap();
-            assert_eq!(pending_admin(&env), None);
+        on(&env, &contract_id, || propose(&env, &admin, &successor).unwrap());
+        on(&env, &contract_id, || cancel(&env, &admin).unwrap());
+        assert_eq!(on(&env, &contract_id, || pending_admin(&env)), None);
 
-            // Cancelling twice reports there is nothing in flight.
-            assert_eq!(cancel(&env, &admin), Err(AdminError::NoPendingTransfer));
-        });
+        // Cancelling twice reports there is nothing in flight.
+        assert_eq!(
+            on(&env, &contract_id, || cancel(&env, &admin)),
+            Err(AdminError::NoPendingTransfer)
+        );
     }
 
     #[test]
     fn transfer_to_self_is_rejected() {
         let (env, admin) = funded_env();
-        with_contract(&env, || {
-            assert_eq!(
-                propose(&env, &admin, &admin),
-                Err(AdminError::InvalidTarget)
-            );
-            assert_eq!(pending_admin(&env), None);
-        });
+        let contract_id = env.register_contract(None, crate::TestContract);
+        assert_eq!(
+            on(&env, &contract_id, || propose(&env, &admin, &admin)),
+            Err(AdminError::InvalidTarget)
+        );
+        assert_eq!(on(&env, &contract_id, || pending_admin(&env)), None);
     }
 
     #[test]
     fn accept_before_any_transfer_is_rejected() {
         let (env, admin) = funded_env();
+        let contract_id = env.register_contract(None, crate::TestContract);
         let stranger = Address::generate(&env);
-        with_contract(&env, || {
-            assert_eq!(
-                accept(&env, &admin, &stranger),
-                Err(AdminError::NoPendingTransfer)
-            );
-        });
+        assert_eq!(
+            on(&env, &contract_id, || accept(&env, &admin, &stranger)),
+            Err(AdminError::NoPendingTransfer)
+        );
     }
 
     #[test]
     fn accept_by_a_non_successor_is_rejected() {
         let (env, admin) = funded_env();
+        let contract_id = env.register_contract(None, crate::TestContract);
         let successor = Address::generate(&env);
         let impostor = Address::generate(&env);
 
-        with_contract(&env, || {
-            propose(&env, &admin, &successor).unwrap();
-            assert_eq!(
-                accept(&env, &admin, &impostor),
-                Err(AdminError::Unauthorized)
-            );
-            // The impostor did not consume the proposal.
-            assert_eq!(pending_admin(&env), Some(successor));
-        });
+        on(&env, &contract_id, || propose(&env, &admin, &successor).unwrap());
+        assert_eq!(
+            on(&env, &contract_id, || accept(&env, &admin, &impostor)),
+            Err(AdminError::Unauthorized)
+        );
+        // The impostor did not consume the proposal.
+        assert_eq!(
+            on(&env, &contract_id, || pending_admin(&env)),
+            Some(successor)
+        );
     }
 
     #[test]
     fn double_accept_is_rejected() {
         let (env, admin) = funded_env();
+        let contract_id = env.register_contract(None, crate::TestContract);
         let successor = Address::generate(&env);
 
-        with_contract(&env, || {
-            propose(&env, &admin, &successor).unwrap();
-            accept(&env, &admin, &successor).unwrap();
-            assert_eq!(
-                accept(&env, &admin, &successor),
-                Err(AdminError::NoPendingTransfer)
-            );
-        });
+        on(&env, &contract_id, || propose(&env, &admin, &successor).unwrap());
+        on(&env, &contract_id, || accept(&env, &admin, &successor).unwrap());
+        assert_eq!(
+            on(&env, &contract_id, || accept(&env, &admin, &successor)),
+            Err(AdminError::NoPendingTransfer)
+        );
     }
 
     #[test]
