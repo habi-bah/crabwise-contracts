@@ -332,7 +332,7 @@ mod test {
         // v1 deployment from the instance code.
         let salt_a = BytesN::from_array(&env, &[1u8; 32]);
         let campaign_a = factory_client.deploy_campaign(&creator, &xlm, &salt_a);
-        let campaign_a_client = instance_wasm::ContractClient::new(&env, &campaign_a);
+        let campaign_a_client = instance_wasm::Client::new(&env, &campaign_a);
         campaign_a_client.initialize(
             &creator,
             &1_000_i128,
@@ -348,7 +348,7 @@ mod test {
         // New deployments use the updated code...
         let salt_b = BytesN::from_array(&env, &[2u8; 32]);
         let campaign_b = factory_client.deploy_campaign(&creator, &xlm, &salt_b);
-        let campaign_b_client = factory_wasm::ContractClient::new(&env, &campaign_b);
+        let campaign_b_client = factory_wasm::Client::new(&env, &campaign_b);
         campaign_b_client.initialize(&Address::generate(&env), &Address::generate(&env));
         assert_eq!(campaign_b_client.get_deployment_fee(), 0);
 
