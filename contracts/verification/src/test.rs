@@ -498,6 +498,87 @@ fn revoking_a_nonexistent_badge_is_reported() {
     assert_eq!(err, VerificationError::BadgeNotFound);
 }
 
+// ── Issue #74: Keep verification event payloads indexable ───────────────────
+
+#[test]
+fn verification_events_contain_status_subject_and_decision_metadata() {
+    let f = setup();
+    f.client.submit_portfolio(&f.artist, &uri(&f.env), &5);
+    f.client.start_review(&f.reviewer, &f.artist);
+    f.client.review_portfolio(&f.reviewer, &f.artist, &quality(80), &note(&f.env));
+
+    let portfolio = f.client.get_portfolio(&f.artist);
+    // The portfolio carries all the metadata needed to reconstruct the event:
+    // subject (artist), decision (reviewer), and status.
+    assert_eq!(portfolio.status, PortfolioStatus::Verified);
+    assert_eq!(portfolio.reviewer, Some(f.reviewer.clone()));
+    assert!(portfolio.score >= 70);
+
+    // History records contain the same fields in indexable form.
+    let history = f.client.get_history(&f.artist);
+    assert_eq!(history.len(), 1);
+    let record = history.get(0).unwrap();
+    assert_eq!(record.outcome, ReviewOutcome::Approved);
+    assert_eq!(record.reviewer, Some(f.reviewer.clone()));
+    assert_eq!(record.score, portfolio.score);
+}
+
+#[test]
+fn badge_events_carry_badge_type_action_and_actor() {
+    let f = setup();
+    f.client
+        .issue_badge(&f.reviewer, &f.artist, &BadgeType::IdVerified, &100, &note(&f.env));
+
+    let badge = f.client.get_badge(&f.artist, &BadgeType::IdVerified);
+    // Badge record fields needed for indexing.
+    assert_eq!(badge.badge_type, BadgeType::IdVerified);
+    assert_eq!(badge.issuer, f.reviewer);
+    assert_eq!(badge.status, BadgeStatus::Active);
+
+    let history = f.client.get_badge_history(&f.artist);
+    assert_eq!(history.len(), 1);
+    let event = history.get(0).unwrap();
+    assert_eq!(event.badge_type, BadgeType::IdVerified);
+    assert_eq!(event.action, BadgeAction::Issued);
+    assert_eq!(event.actor, f.reviewer);
+}
+
+// ── Issue #75: Test verification expiration and renewal ──────────────────────
+
+#[test]
+fn badge_active_before_expiry_expired_at_boundary_renewable_after() {
+    let f = setup();
+    let valid_for: u32 = 100;
+    f.client
+        .issue_badge(&f.reviewer, &f.artist, &BadgeType::IdVerified, &valid_for, &note(&f.env));
+
+    let badge = f.client.get_badge(&f.artist, &BadgeType::IdVerified);
+    let expiry = badge.expires_ledger;
+
+    // Before expiry: badge is active.
+    f.env.ledger().with_mut(|l| l.sequence_number = expiry - 1);
+    assert!(f.client.is_badge_active(&f.artist, &BadgeType::IdVerified));
+
+    // At expiry: still active (<=).
+    f.env.ledger().with_mut(|l| l.sequence_number = expiry);
+    assert!(f.client.is_badge_active(&f.artist, &BadgeType::IdVerified));
+
+    // After expiry: badge no longer active.
+    f.env.ledger().with_mut(|l| l.sequence_number = expiry + 1);
+    assert!(!f.client.is_badge_active(&f.artist, &BadgeType::IdVerified));
+
+    // Renewal (re-issue) resets the expiry.
+    f.client
+        .issue_badge(&f.reviewer, &f.artist, &BadgeType::IdVerified, &valid_for, &note(&f.env));
+    let renewed_badge = f.client.get_badge(&f.artist, &BadgeType::IdVerified);
+    // After renewal the badge is active again.
+    assert!(f.client.is_badge_active(&f.artist, &BadgeType::IdVerified));
+    assert!(renewed_badge.expires_ledger > expiry);
+
+    let history = f.client.get_badge_history(&f.artist);
+    assert_eq!(history.len(), 2);
+    assert_eq!(history.get(0).unwrap().action, BadgeAction::Issued);
+    assert_eq!(history.get(1).unwrap().action, BadgeAction::Renewed);
 // ── Issue #71: Make verification status transitions monotonic ────────────────
 
 #[test]

@@ -636,6 +636,27 @@ fn contract_search_pages_match_shared_pagination_boundaries() {
     }
 }
 
+// ── Issue #77: Make search updates idempotent ─────────────────────────────────
+
+#[test]
+fn indexing_unchanged_record_produces_no_duplicates() {
+    let env = Env::default();
+    let (client, _admin) = setup(&env);
+    let artist = Address::generate(&env);
+
+    client.index_artist(&artist, &tags(&env, &["illustration"]), &500_i128, &Vec::new(&env));
+
+    // Re-index with identical data.
+    client.index_artist(&artist, &tags(&env, &["illustration"]), &500_i128, &Vec::new(&env));
+    client.index_artist(&artist, &tags(&env, &["illustration"]), &500_i128, &Vec::new(&env));
+
+    // The count is still 1.
+    assert_eq!(client.get_indexed_count(), 1);
+
+    let filters = empty_filters(&env);
+    let page = client.search(&filters, &SortBy::PriceAsc, &0, &10);
+    // Exactly one result — no duplicates in pagination totals.
+    assert_eq!(page.total_matches, 1);
 // ── Issue #76: Reject invalid search query limits ────────────────────────────
 
 #[test]
@@ -668,6 +689,68 @@ fn max_page_size_is_accepted() {
 }
 
 #[test]
+fn indexing_updated_record_replaces_by_stable_identity() {
+    let env = Env::default();
+    let (client, _admin) = setup(&env);
+    let artist_a = Address::generate(&env);
+    let artist_b = Address::generate(&env);
+
+    client.index_artist(&artist_a, &tags(&env, &["photo"]), &300_i128, &Vec::new(&env));
+    client.index_artist(&artist_b, &tags(&env, &["video"]), &400_i128, &Vec::new(&env));
+
+    // Update artist_a's price.
+    client.index_artist(&artist_a, &tags(&env, &["photo"]), &150_i128, &Vec::new(&env));
+
+    // Still two unique artists.
+    assert_eq!(client.get_indexed_count(), 2);
+
+    let filters = empty_filters(&env);
+    let page = client.search(&filters, &SortBy::PriceAsc, &0, &10);
+    assert_eq!(page.total_matches, 2);
+    // artist_a should now show price 150 (updated).
+    let artist_a_result = page.results.iter().find(|l| l.artist == artist_a).unwrap();
+    assert_eq!(artist_a_result.price, 150);
+}
+
+// ── Issue #78: Exclude inactive records from search results ──────────────────
+
+#[test]
+fn inactive_records_are_excluded_without_removing_active_results() {
+    let env = Env::default();
+    let (client, _admin) = setup(&env);
+    let active_artist = Address::generate(&env);
+    let inactive_artist = Address::generate(&env);
+
+    client.index_artist(&active_artist, &Vec::new(&env), &100_i128, &Vec::new(&env));
+    client.index_artist(&inactive_artist, &Vec::new(&env), &200_i128, &Vec::new(&env));
+
+    // Deactivate one listing.
+    client.deactivate_listing(&inactive_artist, &inactive_artist);
+
+    // The deactivated listing is excluded from search.
+    let filters = empty_filters(&env);
+    let page = client.search(&filters, &SortBy::PriceAsc, &0, &10);
+    assert_eq!(page.total_matches, 1);
+    assert_eq!(page.results.len(), 1);
+    assert_eq!(page.results.get(0).unwrap().artist, active_artist);
+}
+
+#[test]
+fn reactivated_record_reappears_in_search_results() {
+    let env = Env::default();
+    let (client, _admin) = setup(&env);
+    let artist = Address::generate(&env);
+
+    client.index_artist(&artist, &Vec::new(&env), &100_i128, &Vec::new(&env));
+    client.deactivate_listing(&artist, &artist);
+
+    let filters = empty_filters(&env);
+    let page = client.search(&filters, &SortBy::PriceAsc, &0, &10);
+    assert_eq!(page.total_matches, 0);
+
+    // Reactivate by re-indexing (index_artist sets active = true).
+    client.index_artist(&artist, &Vec::new(&env), &100_i128, &Vec::new(&env));
+    let page = client.search(&filters, &SortBy::PriceAsc, &0, &10);
 fn over_max_page_size_is_rejected() {
     let env = Env::default();
     let (client, _admin) = setup(&env);
