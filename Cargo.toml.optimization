@@ -15,4 +15,3 @@ codegen-units = 1
 panic = "abort"
 
 # Strip debug symbols
-strip = true
